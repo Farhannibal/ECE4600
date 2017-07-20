@@ -1,8 +1,8 @@
-# Title: 
-Autonomous Robot Cluster
+# Title:
+Autonomous Robot Cluster or Design and implementation of a self driving car network
 
-# Abstract & Objective: 
-Lorem Ipsum
+# Abstract & Objective:
+The objective of this project is to create a network of self driving cars. The cars will be taught to drive using machine learning and positional data acquired either through sensors on the vehicle or a camera above. Once the cars are able to follow any path or road we will introduce an intersection. Routing at the intersection will be done by the server back end of the network. Based on when the cars are arriving and where they need to go the server will tell them how they should behave at the intersection. This routing will also be achieved by machine learning. Once a single intersection with two cars can be handled we will continue to expand the system until we run out of time. The next step would be adding more cars to a single intersection system; followed by adding more intersections.
 
 # Citations:
 [Cite 1] [Author]
