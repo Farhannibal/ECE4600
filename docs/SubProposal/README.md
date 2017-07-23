@@ -41,6 +41,8 @@ URL: https://www.digikey.ca/short/3vhwbf
 USB-OTG interface - $?.??
 	Desc:
 
+![alt text](http://i.imgur.com/xdMSX3s.png "Ideal Robot")
+
 # Tasks & Roadmap:
 
 ### September:
