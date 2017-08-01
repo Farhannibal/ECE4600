@@ -3,8 +3,9 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
+\usepackage{hyperref}
 
-\newcommand{\theDate}{July  25th, 2017} %Change this every meeting
+\newcommand{\theDate}{July  29th, 2017} %Change this every meeting
 \setlength{\headheight}{13.6pt}
 \pagestyle{fancy}
 \fancyhf{}
@@ -22,7 +23,7 @@
 		\par 
 		The objective of our proposed project is to create a smart network capable of routing robots optimally. The robots are intended to represent vehicles and they themselves can be as simple or complicated as desired. \par
 		The smart network will employ machine learning to improve routing and be able to adapt to different configurations roads. When a robot approaches the intersection it would communicate to the network and receive instructions about whether it should continue, slow down, stop or any other reasonable instruction. The network would make these decisions based on information about other robots approaching the intersections, robot speeds and their intended paths. To keep track of all the robots as they move around we are looking in to a machine vision solution; potentially having a single camera watching over the robots and relaying information to the computer which can then determine position and velocity of the robots. \par
-		For communication between the network and individual robots we are currently considering ZigBee and MiWi protocals.The ZigBee protocal is most commonely seen in remotes and smart home electronics. MiWi is a protocal created and distributed by Microchip and is advertised as a smaller footprint alternative to ZigBee. \par
+		For communication between the network and individual robots we are currently considering ZigBee and MiWi protocls.The ZigBee protocol is most commonely seen in remotes and smart home electronics. MiWi is a protocol created and distributed by Microchip and is advertised as a smaller footprint alternative to ZigBee. Communication between the base station and our computer will likely be through a USB interace.\par
 		The robots which we are using to simulate vehicles will be relatively simple. We have began narrowing down the specifications and already have a microcontroller, motors and transceiver picked out pending final evaluations. Routing and driving of the robots is still very much under discussion. We could hard program how to driver straight, do simple turns and anything else basic or we could apply machine learning here too. The benefit of using machine learning here is that we could theoretically use any sort of road system and would allow for much more complicated tests later during the smart network phase. \\  
 		 
 	\section*{Roadmap}
@@ -58,7 +59,7 @@
 			\end{itemize}
 		\item \textbf{January:}
 			\begin{itemize}
-				\item 
+				\item Pending December evaluation.
 			\end{itemize}
 		\item \textbf{February:}
 			\begin{itemize}
@@ -70,12 +71,35 @@
 			\end{itemize}
 	\end{itemize}
 	\section*{Citations}
-	Here is a list of some preliminary research which we believe shows our project is reasonable:
-	\begin{itemize}
-		\item \textbf{Evolving Neural Networks through Augmenting Topologies} by Kenneth O. Stanley and Risto Miikkulainen. This paper is about a method of neural network implementation that outperforms traditional neural nets. http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
-		\item \textbf{Car training and tracking}This video shows both the ability to train a small RC car to do a task much more complex than what we intend. Additionally they also demonstrate tracking of the RC cars with a camera; this is something we intend to emulate. https://www.youtube.com/watch?v=opsmd5yuBF0
-		\item \textbf{Another autonomous RC car} This video shows students using machine learning to train a car to predict a path based on image data. We might potentially do something similar if we decide to apply machine learning to the robots.
-	\end{itemize}
+	Here is a list of some preliminary research which we believe shows our project is reasonable:\\
+	
+	\textbf{Stanley and Miikkulainen, 2002] Stanley, K., and Miikkulainen, R., “Evolving Neural Networks through Augmenting Topologies”. Evolutionary Computation Volume 10, Number 2, 2002.}\\
+	”This paper is about a method of neural network implementation that outperforms traditional neural nets."\\ 
+	\href{URL}{http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf}\\
+		
+	\textbf{[Aerospace Controls Lab, 2015], Aerospace Controls Lab., “Autonomous Drifting using Machine Learning.” 2015.}\\
+	“This video shows both the ability to train a small RC car to do a task much more complex than what we intend. Additionally they also demonstrate tracking of the RC cars with a camera; this is something we intend to emulate." \\
+	\href{URL}{https://www.youtube.com/watch?v=opsmd5yuBF0}\\
+		
+	\textbf{[Hadik, 2013] Hadik, A. “MATLAB Neural Network Autonomous Car”, 2015.}\\
+	"Another autonomous RC car This video shows students using machine learning to train a car to predict a path based on image data. We might potentially do something similar if we decide to apply machine learning to the robots."\\
+	\href{URL}{https://www.youtube.com/watch?v=mW6Y\_tiiNYM}\\
+		
+	\textbf{[Wan et al., 2009] Wan, J., Wang, Y., Qin, Q., and Li, Y. “Multi-Robots’ Communication System Based On ZigBee Network”. In The Ninth International Conference on Electronic Measurement \& Instruments, 2009.}\\
+	"Publication in ICEMI 2009. Similar to our project of robot network cluster. Showcases Network structure, hardware implementation and communications function."\\ \href{URL}{http://ieeexplore.ieee.org.uml.idm.oclc.org/document/5274350/}\\
+		
+	\textbf{[Surmann et al., 2014] Surmann, H., Worst, R., Zimmermann, E., Wilkes, S., Liebelt, T., and Eulering, C. “Simple Mobile Robots and Self-Adaptive Wireless Networks”. In 41st International Symposium on Robotics, 2014.}\\
+	“Publication in International Symposium on Robotics Gives a case study for Robot networks in disaster areas.\\ 
+	\href{URL}{http://ieeexplore.ieee.org.uml.idm.oclc.org/document/6840176/}\\
+	
+	\textbf{Kay, Russell. (2006). ZigBee.(QUICK STUDY). Computerworld, 40(20), 46-46.}\\
+	"Encryption based on the AES-128 standard certified by National Institution of Standards and
+	Technology."\\
+	
+	\textbf{Tachet R, Santi P, Sobolevsky S, Reyes-Castro LI, Frazzoli E, Helbing D, et al. (2016) Revisiting Street Intersections Using Slot-Based Systems. PLoS ONE 11(3): e0149607.}\\
+	"Apply Street Intersections using slot-based systems technique (research by MIT)."\\
+	\href{URL}{https://doi.org/10.1371/journal.pone.0149607}\\
+	
 	\section*{Bill of Material}
 	Note: This is a preliminary estimation of what we would be expecting to spend. Subject to change or increase. All Prices in CAD. \\
 	Per robot unit: \\
@@ -98,9 +122,8 @@
 	
 	\textbf{L293D H-Bridge Circuit - \$0.45} \\
 	Description: H-Bridge Circuit IC. Since we are trying to build a simple car, we would control the two motors and their direction using a simple H-Bridge IC. It would be directly connected to the MCU's GPIO. \\
-	
-	\textbf{Base station:} \\
-	USB-OTG interface - \$?.?? \\
-	Description:
-
+	\begin{figure}[h]
+		\includegraphics[scale=0.5]{../diag.png}
+		\caption{Simple diagram of our planned system}
+	\end{figure}
 \end{document}
