@@ -1,11 +1,13 @@
 """
 A simple Python script to receive messages from a client over
-Bluetooth using PyBluez (with Python 2).
+Bluetooth using PyBluez.
 """
 
 import bluetooth
 
-hostMACAddress = '5C:F3:70:76:B6:5E' # The MAC address of a Bluetooth adapter on the server. The server might have multiple Bluetooth adapters.
+hostMACAddress = '5C:F3:70:76:B6:5E' # The MAC address of a Bluetooth adapter 
+					#on the server. The server might have 
+					#multiple Bluetooth adapters.
 port = 3
 backlog = 1
 size = 1024
