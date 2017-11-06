@@ -12,6 +12,6 @@ s.connect((serverMACAddress, port))
 while 1:
     text = input()
     if text == "quit":
-    break
+   		break
     s.send(text)
 sock.close()
