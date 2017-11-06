@@ -5,7 +5,7 @@
 
 import socket
 
-serverMACAddress = ''
+serverMACAddress = '5C:F3:70:76:B6:5E'
 port = 
 s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM,
 	socket.BTPROTO_RFCOMM)
