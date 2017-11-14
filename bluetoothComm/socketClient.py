@@ -10,14 +10,14 @@ serverMACAddress = '5C:F3:70:76:B6:5E'
 port = 3
 s = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 output_file = open("CommandQueue.txt", "w")
+size = 1024
 
 # Establish connection between server and client
 if (s.connect((serverMACAddress, port))):
 	print("Connection established")
 	while 1:
-    	data = client.recv(size)
-        output_file.write(data)
-
+		data = s.recv(size)
+		output_file.write(data)
 		if data == "quit":
 			print("Closing server ...")
 			break
@@ -33,11 +33,10 @@ if (s.connect((serverMACAddress, port))):
 			print("Stop the car!")
 		else:
 			print("Command is not available")
-	        client.send(data) # Echo back to client
+			client.send(data) # Echo back to client
 
 	s.close() # When the server close the socket     
-else 
+else:
 	println("Error connecting to host")
-	break
 
 output_file.close()

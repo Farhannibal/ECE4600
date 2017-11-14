@@ -12,7 +12,6 @@ hostMACAddress = '5C:F3:70:76:B6:5E' # The MAC address of a Bluetooth adapter
 					#multiple Bluetooth adapters.
 port = 3
 backlog = 1
-size = 1024
 
 # Establish connection between server and client
 s = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
