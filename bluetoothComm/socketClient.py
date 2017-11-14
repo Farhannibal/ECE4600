@@ -16,10 +16,9 @@ size = 1024
 s.connect((serverMACAddress, port))
 
 try:
-	server, serverInfo = s.accept()
 	print("Connection established")
 	while 1:
-		data = server.recv(size)
+		data = s.recv(size)
 		output_file.write(data)
 		if data == "quit":
 			print("Closing server ...")
@@ -39,7 +38,7 @@ try:
 			client.send(data) # Echo back to client
 
 	s.close() # When the server close the socket     
-else:
+except:
 	print("Error connecting to host")
 
 output_file.close()

@@ -16,12 +16,13 @@ backlog = 1
 # Establish connection between server and client
 s = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 s.bind((hostMACAddress, port))
-s.listen(backlog)
-while 1:
-   	text = input()
-   	# Quit when user type quit in command line
-   	s.send(text) # close both client and server 
-   	if text == "quit":
-  		break
 
+while 1:
+    s.listen(backlog)
+    client, clientInfo = s.accept()
+    text = input()
+   	# Quit when user type quit in command line
+    s.send(text) # close both client and server 
+    if text == "quit":
+        break
 s.close()
