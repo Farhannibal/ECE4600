@@ -12,8 +12,8 @@ s = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 output_file = open("CommandQueue.txt", "w")
 
 # Establish connection between server and client
-if (s.connect((serverMACAddress, port)))
-	println("Connection established")
+if (s.connect((serverMACAddress, port))):
+	print("Connection established")
 	while 1:
     	data = client.recv(size)
         output_file.write(data)
@@ -39,5 +39,5 @@ if (s.connect((serverMACAddress, port)))
 else 
 	println("Error connecting to host")
 	break
-	
+
 output_file.close()
