@@ -13,10 +13,13 @@ output_file = open("CommandQueue.txt", "w")
 size = 1024
 
 # Establish connection between server and client
-if (s.connect((serverMACAddress, port))):
+s.connect((serverMACAddress, port))
+
+try:
+	server, serverInfo = s.accept()
 	print("Connection established")
 	while 1:
-		data = s.recv(size)
+		data = server.recv(size)
 		output_file.write(data)
 		if data == "quit":
 			print("Closing server ...")
@@ -37,6 +40,6 @@ if (s.connect((serverMACAddress, port))):
 
 	s.close() # When the server close the socket     
 else:
-	println("Error connecting to host")
+	print("Error connecting to host")
 
 output_file.close()

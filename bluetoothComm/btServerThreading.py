@@ -46,7 +46,7 @@ while 1:
 	except:
 		print("Failed to connect to client")
 		client.close()
-	s.close()
+	btConnect.close()
 
 for t in threads:
 		t.join()
