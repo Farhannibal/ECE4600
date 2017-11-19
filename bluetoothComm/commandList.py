@@ -1,9 +1,12 @@
 # Library of command
 def listOfCommand(command):
 	return{
-		"UP":1,
-		"DOWN":2,
-		"LEFT":3,
-		"RIGHT":4,
-		"STOP":5
-	}.get(command, 9) # default will be WAIT
+		"ACK4S":0,
+		"ACK4C":1,
+		"UP":2,
+		"DOWN":3,
+		"LEFT":4,
+		"RIGHT":5,
+		"STOP":6,
+		"QUIT":98
+	}.get(command, 99) # default will be WAIT
