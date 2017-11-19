@@ -9,7 +9,8 @@ from commandList import listOfCommand
 serverMACAddress = '5C:F3:70:76:B6:5E'
 port = 3
 s = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-output_file = open("CommandQueue.txt", "w")
+output_file = open("CommandQueue.txt", "w").close() # This will make a brand
+                                                    #  new text file
 size = 1024
 
 # Establish connection between server and client
@@ -21,8 +22,7 @@ clientRecvData = clientRecvData.decode("utf-8")
 if listOfCommand(clientRecvData) == 0:
     s.send("ACK4C")
     print("Connection established")
-    # Write the END of the Queue to the file
-    output_file.write("END"+"\n")
+
     while 1:
         # Keep listening from Server
         clientRecvData = s.recv(size)
@@ -36,6 +36,10 @@ if listOfCommand(clientRecvData) == 0:
 
             # Quit when server decide to quit
             if clientRecvData == "QUIT":
+
+                with open("CommandQueue.txt", "a") as output_file:
+                    output_file.write("END" + '\n')
+
                 break
             # Else follow the command
             elif listOfCommand(clientRecvData) == 2:
@@ -51,9 +55,11 @@ if listOfCommand(clientRecvData) == 0:
 
             # Send ACK back
             s.send("ACK4C")
-            output_file.write(clientRecvData + "\n")
+            # Append a list of command, QUIT will be breakpoint of queue
+            with open("CommandQueue.txt", "a") as output_file:
+                output_file.write(clientRecvData+'\n')
 
-
+output_file.close()
 print("Cut connection")
 
 
