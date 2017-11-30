@@ -55,25 +55,13 @@ if listOfCommand(clientRecvData) == 0:
 
             # Send ACK back
             s.send("ACK4C")
+
             # Append a list of command, QUIT will be breakpoint of queue
             with open("CommandQueue.txt", "a") as output_file:
                 output_file.write(clientRecvData+'\n')
 
 output_file.close()
 print("Cut connection")
-
-
-    # output_file.write(data.decode("utf-8"))
-
-    # if data == "quit":
-    #     print("Closing server ...")
-    #     break
-    # # elif listOfCommand(data) == 0:
-    # #     s.send("ACK4C")
-    #
-    # else:
-    #     print("Command is not available")
-    #     #s.send(data)  # Echo back to client
 
 s.close()  # When the server close the socket
 

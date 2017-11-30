@@ -1,89 +1,69 @@
 import bluetooth
 from commandList import listOfCommand
 from threading import Thread
-from socketserver import ThreadingMixIn
 
+
+class ThreadedServer(Thread):
+    def __init__(self, clientMAC, port):
+        Thread.__init__(self)
+        self.clientMAC = clientMAC
+        self.port = port
+
+    def run(self):
+        dataSize = 1024
+        while True:
+            # First check if client finish estasblishing connection
+            client.send("ACK4S")
+            serverDataRecv = client.recv(dataSize)
+            serverDataRecv = serverDataRecv.decode("utf-8")
+
+            # Second ACK the connection from client
+            if listOfCommand(serverDataRecv) == 1:
+                print("Connection established for "+self.clientMAC+" at port: "+str(self.port))
+                while 1:
+                    # After establish connection, now start command client
+                    data = input("Enter command for client with MAC: "+self.clientMAC+" at port: "+str(self.port))
+                    if listOfCommand(data) != 99:
+                        # If data is valid then start sending
+
+                        client.send(data)
+
+                        # Waiting for ACK signal
+                        serverDataRecv = client.recv(dataSize).decode("utf-8")
+
+                        # If ACK then keep going, if not resend data
+                        if listOfCommand(serverDataRecv) != 1:
+                            client.send(data)
+
+                        # if more than this point, give up on sending that --
+                        #  think more
+
+                        # Quit when user type quit in command line
+                        if data == "QUIT":
+                            # client.close()
+                            break
+                    else:
+                        print("Wrong command, please check the command list and repeat input !")
+        return False
+
+
+# Multithreaded Python server: Bluetooth server
 hostMACAddress = '5C:F3:70:76:B6:5E'
-port = 3
+btPort = 3  # default for pyBluez bluetooth
 backlog = 1
 dataSize = 1024
 
-class ClientThread(Thread):
-	#	Override the __init(self[,args]) method to add
-	#	additional arguments
-	def __init__(self, address, port):
-		Thread.__init(self)
-		self.address = address
-		self.port = port
-		print ("* New server connection started for " + address +
-		 " : " + str(port))
-
-	#	Override the run(self[,args]) method to implement what
-	#		the thread should do when started
-	def run(self):
-		client.send("ACK4S")
-		serverDataRecv = client.recv(dataSize)
-		serverDataRecv = serverDataRecv.decode("utf-8")
-
-		# Second ACK the connection from client
-		if listOfCommand(serverDataRecv) == 1:
-			print("Connection established")
-			while 1:
-				# After establish connection, now start command client
-				data = input()
-				if listOfCommand(data) != 99:
-					# If data is valid then start sending
-
-					client.send(data)
-
-					# Waiting for ACK signal
-					serverDataRecv = client.recv(dataSize).decode("utf-8")
-
-					# If ACK then keep going, if not resend data
-					if listOfCommand(serverDataRecv) != 1:
-						client.send(data)
-
-					# if more than this point, give up on sending that --
-					#  think more
-
-					# Quit when user type quit in command line
-					if data == "QUIT":
-						break
-				else:
-					print("Wrong command, please check the command list and repeat input !")
-
-# Definition of some basic data and address
-hostMACAddress = "5C:F3:70:76:B6:5E" # The MAC address of a Bluetooth adapter 
-					#on the server. The server might have 
-					#multiple Bluetooth adapters.
-bluetoothPort = 3
-backlog = 1
-size = 1024
-
 btConnect = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-btConnect.bind((hostMACAddress, bluetoothPort))
-btConnect.listen(backlog)
+btConnect.bind((hostMACAddress, btPort))
+# Spawn thread
 threads = []
 
-while 1:
-	try:
-		client, (clientAddress, clientPort) = btConnect.accept()
-		newthread = ClientThread(clientAddress, clientPort)
-		newthread.start()
-		threads.append(newthread)
-	except:
-		print("Closing socket")
-		# close both client and server
-		client.close()
+while True:
+    btConnect.listen(1)  # this will send to back log
+    (client, (MACconnect, port)) = btConnect.accept()
+    newthread = ThreadedServer(MACconnect, port)
+    newthread.start()
+    threads.append(newthread)
 
-for t in threads:
-		t.join()
-btConnect.close()
-
-
-
-
-
-
-
-
+    for t in threads:
+        t.join()

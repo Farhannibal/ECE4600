@@ -57,4 +57,6 @@ except:
     print("Closing socket")
     # close both client and server
     client.close()
+
+    #Finish the program
     btConnect.close()
