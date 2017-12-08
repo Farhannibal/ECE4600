@@ -9,7 +9,7 @@ class myThread (threading.Thread):
 		self.counter = counter
 
 	def run(self):
-		print "Starting " + self.name
+		print("Starting " + self.name)
 		# Get lock to synchronize threads
 		threadLock.acquire()
 		print_time(self.name, self.counter, 3)
@@ -19,7 +19,7 @@ class myThread (threading.Thread):
 def print_time(threadName, delay, counter):
 	while counter:
 		time.sleep(delay)
-		print "%s: %s" % (threadName, time.ctime(time.time()))
+		print("%s: %s" % (threadName, time.ctime(time.time())))
 		counter -= 1
 
 threadLock = threading.Lock()
@@ -41,4 +41,4 @@ threads.append(thread2)
 for t in threads:
 	t.join()
 
-print "Exiting Main Thread"
+print("Exiting Main Thread")

@@ -67,4 +67,4 @@ s.close()  # When the server close the socket
 
 # print("Error connecting to host")
 
-output_file.close()
+# output_file.close()
