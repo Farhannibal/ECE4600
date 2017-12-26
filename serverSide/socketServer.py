@@ -1,10 +1,17 @@
-"""
-A simple Python script to receive messages from a client over
-Bluetooth using PyBluez.
-"""
-
 import bluetooth
-from commandList import listOfCommand
+
+# Library of command
+def listOfCommand(command):
+	return{
+		"ACK4S":0,
+		"ACK4C":1,
+		"UP":2,
+		"DOWN":3,
+		"LEFT":4,
+		"RIGHT":5,
+		"STOP":6,
+		"QUIT":98
+	}.get(command, 99) # default will be WAIT
 
 # Definition of some basic data and address
 hostMACAddress = '5C:F3:70:76:B6:5E'  # The MAC address of a Bluetooth adapter
@@ -18,6 +25,8 @@ dataSize = 1024
 btConnect = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 btConnect.bind((hostMACAddress, port))
 btConnect.listen(backlog)
+print("Server is up !")
+print("Waiting for connection ... ")
 
 try:
     client, clientInfo = btConnect.accept()  # connect with client
@@ -31,6 +40,7 @@ try:
     if listOfCommand(serverDataRecv) == 1:
         print("Connection established")
         while 1:
+            print("Please enter command (UP, DOWN, LEFT, RIGHT, STOP or QUIT): ")
             # After establish connection, now start command client
             data = input()
             if listOfCommand(data) != 99:

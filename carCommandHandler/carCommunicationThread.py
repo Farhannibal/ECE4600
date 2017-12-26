@@ -15,7 +15,48 @@ def listOfCommand(command):
         "RIGHT": 5,
         "STOP": 6,
         "QUIT": 98
-    }.get(command, 99)  # default will be WAIT
+    }.get(command, 99)  # default will be ERROR MESSAGE
+
+def messageHandler(connection, message):
+    # return:   True to keep the loop
+    #           False to exit the loop
+    # Error detection:
+    if listOfCommand(message) == 99:
+        print("Received error message, need send back new command!")
+        return True
+    # Else there is no error:
+    else:
+        # Quit when server decide to quit
+        if message == "QUIT":
+            return False
+        else:
+            # Else follow the command
+            # Any command for the car will be modified here
+
+            # Going up
+            if listOfCommand(message) == 2:
+                print("Go up")
+
+            # Going back
+            elif listOfCommand(message) == 3:
+                print("Go back")
+            
+            # Turn left
+            elif listOfCommand(message) == 4:
+                print("Turn left")
+
+            # Turn right
+            elif listOfCommand(message) == 5:
+                print("Turn right")
+
+            # STOP
+            elif listOfCommand(message) == 6:
+                print("Stop the car!")
+
+            # Send ACK back
+            connection.send("ACK4C")
+            return True
+
 
 
 class communication_thread(threading.Thread):
@@ -35,37 +76,11 @@ class communication_thread(threading.Thread):
         if listOfCommand(self.clientRecvData) == 0:
             self.serverConnection.send("ACK4C")
             print("Connection established")
-
-            while True:
+            listening = True
+            while listening:
                 # Keep listening to Server
                 self.clientRecvData = self.serverConnection.recv(BUFFSIZE).decode("utf-8")
-
-                # Error detection:
-                if listOfCommand(self.clientRecvData) == 99:
-                    print("Received error message, need send back new command!")
-                # Else there is no error:
-                else:
-
-                    # Quit when server decide to quit
-                    if self.clientRecvData == "QUIT":
-                        # with open("CommandQueue.txt", "a") as output_file:
-                        #     output_file.write("END" + '\n')
-                        break
-
-                    # Else follow the command
-                    elif listOfCommand(self.clientRecvData) == 2:
-                        print("Go up")
-                    elif listOfCommand(self.clientRecvData) == 3:
-                        print("Go back")
-                    elif listOfCommand(self.clientRecvData) == 4:
-                        print("Turn left")
-                    elif listOfCommand(self.clientRecvData) == 5:
-                        print("Turn right")
-                    elif listOfCommand(self.clientRecvData) == 6:
-                        print("Stop the car!")
-                    #                 Send ACK back
-                    self.serverConnection.send("ACK4C")
-
+                listening = messageHandler(self.serverConnection, self.clientRecvData)
         print("Cut connection")
         self.serverConnection.close()
 
