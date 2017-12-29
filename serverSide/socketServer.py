@@ -63,7 +63,6 @@ try:
                 serverDataRecv = client.recv(dataSize).decode("utf-8")
                 print(serverDataRecv)
 
-
                 #Wait till the car is reaching their final destination
 
 

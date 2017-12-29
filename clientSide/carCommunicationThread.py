@@ -60,7 +60,8 @@ def messageHandler(connection, message, robot):
 
 
             # Send back when the car finish they go:
-            connection.send("ACK4C")
+            dataSendBack = robot.status()
+            connection.send(dataSendBack)
             return True
 
 
