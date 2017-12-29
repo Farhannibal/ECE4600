@@ -2,13 +2,9 @@ import json
 #import queue
 
 def toJSON(message):
-    if type(message) is bytes:
-        message = message.decode("utf-8")
     return json.dumps(message)
 
 def fromJSON(message):
-    if type(message) is bytes:
-        message = message.decode("utf-8")
     return json.loads(message)
 
 #def commandQueueExe()

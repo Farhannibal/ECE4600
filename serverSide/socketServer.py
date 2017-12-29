@@ -1,4 +1,5 @@
 import bluetooth
+import json
 
 # Library of command
 def listOfCommand(command):
@@ -13,8 +14,20 @@ def listOfCommand(command):
 		"QUIT":98
 	}.get(command, 99) # default will be WAIT
 
+
+def toJSON(message):
+    if type(message) is bytes:
+        message = message.decode("utf-8")
+    return json.dumps(message)
+
+def fromJSON(message):
+    if type(message) is bytes:
+        message = message.decode("utf-8")
+    return json.loads(message)
+
 # Definition of some basic data and address
 hostMACAddress = '5C:F3:70:76:B6:5E'  # The MAC address of a Bluetooth adapter
+
 # on the server. The server might have
 # multiple Bluetooth adapters.
 port = 3
@@ -33,8 +46,7 @@ try:
 
     # First check if client finish estasblishing connection
     client.send("ACK4S")
-    serverDataRecv = client.recv(dataSize)
-    serverDataRecv = serverDataRecv.decode("utf-8")
+    serverDataRecv = client.recv(dataSize).decode("utf-8")
 
     # Second ACK the connection from client
     if listOfCommand(serverDataRecv) == 1:
@@ -47,16 +59,13 @@ try:
             # If data is valid then start sending
 
                 client.send(data)
-
-                # Waiting for ACK signal
+                # Waiting for update on position
                 serverDataRecv = client.recv(dataSize).decode("utf-8")
+                print(serverDataRecv)
 
-                # If ACK then keep going, if not resend data
-                if listOfCommand(serverDataRecv) != 1 :
-                    client.send(data)
 
-                # if more than this point, give up on sending that --
-                #  think more
+                #Wait till the car is reaching their final destination
+
 
                 # Quit when user type quit in command line
                 if data == "QUIT":

@@ -1,9 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\bluetoothComm",
-    "\\carCommandHandler"
+    "\\carCommandHandler",
+    "\\serverSide"
   ],
-  "SelectedNode": "\\bluetoothComm\\socketServer.py",
+  "SelectedNode": "\\carCommandHandler\\mcont006.py",
   "PreviewInSolutionExplorer": false
 }
