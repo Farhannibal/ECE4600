@@ -90,13 +90,6 @@ class communication_thread(threading.Thread):
                 self.clientRecvData = self.serverConnection.recv(BUFFSIZE).decode("utf-8")
                 listening = messageHandler(self.serverConnection, self.clientRecvData, self.robot)
 
-
-
-                ## Do the simulation wait here (countdown the count until it reach 0):
-                #while count >0:
-
-                #    listening
-
         print("Cut connection")
         self.robot.command('terminate')
         self.serverConnection.close()

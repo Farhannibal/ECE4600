@@ -15,7 +15,9 @@ def listOfCommand(command):
 	}.get(command, 99) # default will be WAIT
 
 # Definition of some basic data and address
-hostMACAddress = '60:6c:66:b5:63:d1'  # The MAC address of a Bluetooth adapter
+#hostMACAddress = '60:6c:66:b5:63:d1'  # Farhan bluetooth adapter
+#hostMACAddress = '5C:F3:70:76:B6:5E' # My bluetooth adapter
+SERVER_MAC_ADDRESS = '60:6C:66:B5:63:D1' # Aleksa bluetooth
 # on the server. The server might have
 # multiple Bluetooth adapters.
 port = 3
@@ -36,8 +38,12 @@ try:
     client.send("ACK4S")
     serverDataRecv = client.recv(dataSize)
     serverDataRecv = serverDataRecv.decode("utf-8")
-    control = 0
-    counter = 1;
+
+    #control = 0
+    control = 2
+
+    counter = 1
+    queue = []
 
     # Second ACK the connection from client
     if listOfCommand(serverDataRecv) == 1:
@@ -45,7 +51,6 @@ try:
         while 1:
             # After establish connection, now start command client
             if control == 0:
-                print("Control = 0")
                 queue = str(json.load(open("Traffic_Sim/Assets/CarData.json"))["commands"]).split(',')
                 control = 1
                 data = queue[0]
@@ -62,11 +67,14 @@ try:
                 client.send(data)
                     
                 # Waiting for update on position
-                serverDataRecv = client.recv(dataSize).decode("utf-8")
-                with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
-                    json.dump(serverDataRecv, outfile)
-                #print(json.loads(serverDataRecv))    
-
+                #serverDataRecv = client.recv(dataSize).decode("utf-8")
+                #with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
+                serverDataRecv =client.recv(dataSize).decode("utf-8")
+                print(serverDataRecv)
+                with open('data.json', 'w') as outfile:
+                    #output = json.dumps(serverDataRecv, indent=4,
+                    #                  separators=(',', ': '), ensure_ascii=False)
+                    outfile.write(serverDataRecv)
                 # Quit when user type quit in command line
                 if data == "QUIT":
                     break
@@ -76,6 +84,7 @@ except Exception as e:
     print("Closing socket")
     print(e)
     # close both client and server
+    client.send("QUIT")
     client.close()
 
     #Finish the program

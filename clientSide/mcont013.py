@@ -321,32 +321,32 @@ class CommandCoordinator:
 
     def fwdDelta(self):
         # Go forward one node
-        print('Forward Delta')
-        self.act_queue.put('forward20ms')  # self.ac.forward(0.2)
+        print("Forward Delta")
+        self.act_queue.put("forward20ms")  # self.ac.forward(0.2)
 
     def fwd1(self):
         # Go forward one node
         
-        self.act_queue.put('forwardStart')
+        self.act_queue.put("forwardStart")
         # self.commandStart()
         # 
-        self.act_queue.put('forward20ms')  # self.ac.forward(0.2)
+        self.act_queue.put("forward20ms")  # self.ac.forward(0.2)
         ## Change current position (in xml file) to in between current node and next node (Ex: Current Node = Between Prev Node & Next Node)
-        self.act_queue.put('forwardUntil')  # self.ac.forwardUntil()
+        self.act_queue.put("forwardUntil")  # self.ac.forwardUntil()
         ## Change current position (in xml file) to next node (Ex: Current Node = Next Node, Prev and Next node null)
         # self.act_queue.put('commandComplete') #self.commandComplete()
-        self.act_queue.put('forwardEnd')
+        self.act_queue.put("forwardEnd")
 
     def bck1(self):
         # Go Backward one node
-        print('Backward One Node')
+        print("Backward One Node")
         # Change current position to in between current node and next node
         self.ac.backward(0.2)
         self.ac.backwardUntil()
 
     def fwd2(self):
         # Go forward two node
-        print('Forward Two Node')
+        print("Forward Two Node")
         # Change current position to in between current node and next node
         self.fwd1()
         self.fwd1()
@@ -370,12 +370,12 @@ class CommandCoordinator:
 
     def fwdRTurn(self):
         # Go Backward one node
-        self.act_queue.put('forwardRTurnStart')
+        self.act_queue.put("forwardRTurnStart")
         # Change current position to in between current node and next node
         #self.fwd1()
 
-        self.act_queue.put('turnRightFwd')
-        self.act_queue.put('turnRightFwdIndef')  # self.ac.turnRightFwd()
+        self.act_queue.put("turnRightFwd")
+        self.act_queue.put("turnRightFwdIndef")  # self.ac.turnRightFwd()
         #self.fwd2()
         # self.commandComplete()
         self.act_queue.put('forwardRTurnEnd')
@@ -412,7 +412,7 @@ class Robot:
         self.cc = CommandCoordinator(ActionCoordinator(MotionCoordinator(MotorCoordinator(self.evt_loop))))
         self.speedList = [0, 55, 75, 95]
         self.gear = 3
-        self.currentAct='empty'
+        self.currentAct="empty"
 
     def command(self, cmd):
         #time.sleep(0.5)
@@ -425,14 +425,9 @@ class Robot:
         data = {}
         tempList = list(self.cc.act_queue.queue)  
         data['values'] = []  
-        data['values'].append({  
-            # Put the name of the car also
-            'gear':gear,
-            'speed': self.speedList[self.gear],
-            'currentAction': self.currentAct,
-            'actionQueue': tempList
+        data['values'].append({"name":"honkhonk","gear":gear,"speed":self.speedList[self.gear],"currentAction":self.currentAct,"actionQueue":tempList
         })
-        JSON = json.dumps(data)
+        JSON = json.dumps(data, indent=4,separators=(',', ': '), ensure_ascii=False)
         return JSON
 
     def run(self):
@@ -472,8 +467,7 @@ if __name__ == '__main__':
     # robot.command('dance')
     
     SERVER_MAC_ADDRESS = '60:6C:66:B5:63:D1' # Aleksa bluetooth
-    #SERVER_MAC_ADDRESS = '5C:F3:70:82:D4:8D' # Farhan bluetooth
-
+    #SERVER_MAC_ADDRESS = '5C:F3:70:76:B6:5E' # My bluetooth
 
     # Start the communication with server
     carCommunication = communication.communication_thread(SERVER_MAC_ADDRESS,robot)
