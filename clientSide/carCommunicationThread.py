@@ -39,7 +39,7 @@ def messageHandler(connection, message, robot):
             # Going up
             if listOfCommand(message) == 2:
                 print("Go forward")
-                robot.command('fwdDelta')
+                robot.command('fwd1')
 
             # Going back
             elif listOfCommand(message) == 3:
@@ -70,7 +70,7 @@ class communication_thread(threading.Thread):
         threading.Thread.__init__(self)
         self.serverAddress = serverAddress
         self.robot=robot ## Adds the robot to queue up comands
-        self.port = 15
+        self.port = 3
         self.serverConnection = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
     def connectToServer(self):

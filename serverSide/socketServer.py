@@ -14,20 +14,8 @@ def listOfCommand(command):
 		"QUIT":98
 	}.get(command, 99) # default will be WAIT
 
-
-def toJSON(message):
-    if type(message) is bytes:
-        message = message.decode("utf-8")
-    return json.dumps(message)
-
-def fromJSON(message):
-    if type(message) is bytes:
-        message = message.decode("utf-8")
-    return json.loads(message)
-
 # Definition of some basic data and address
-hostMACAddress = '5C:F3:70:76:B6:5E'  # The MAC address of a Bluetooth adapter
-
+hostMACAddress = '60:6c:66:b5:63:d1'  # The MAC address of a Bluetooth adapter
 # on the server. The server might have
 # multiple Bluetooth adapters.
 port = 3
@@ -46,33 +34,47 @@ try:
 
     # First check if client finish estasblishing connection
     client.send("ACK4S")
-    serverDataRecv = client.recv(dataSize).decode("utf-8")
+    serverDataRecv = client.recv(dataSize)
+    serverDataRecv = serverDataRecv.decode("utf-8")
+    control = 0
+    counter = 1;
 
     # Second ACK the connection from client
     if listOfCommand(serverDataRecv) == 1:
         print("Connection established")
         while 1:
-            print("Please enter command (UP, DOWN, LEFT, RIGHT, STOP or QUIT): ")
             # After establish connection, now start command client
-            data = input()
+            if control == 0:
+                print("Control = 0")
+                queue = str(json.load(open("Traffic_Sim/Assets/CarData.json"))["commands"]).split(',')
+                control = 1
+                data = queue[0]
+            elif len(queue) > counter:
+                data = queue[counter]
+                counter = counter + 1
+            else:
+                print("Please enter command (UP, DOWN, LEFT, RIGHT, STOP or QUIT): ")
+                data = input()
+
             if listOfCommand(data) != 99:
             # If data is valid then start sending
 
                 client.send(data)
+                    
                 # Waiting for update on position
                 serverDataRecv = client.recv(dataSize).decode("utf-8")
-                print(serverDataRecv)
-
-                #Wait till the car is reaching their final destination
-
+                with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
+                    json.dump(serverDataRecv, outfile)
+                #print(json.loads(serverDataRecv))    
 
                 # Quit when user type quit in command line
                 if data == "QUIT":
                     break
             else:
                 print("Wrong command, please check the command list and repeat input !")
-except:
+except Exception as e:
     print("Closing socket")
+    print(e)
     # close both client and server
     client.close()
 

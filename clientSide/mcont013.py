@@ -8,9 +8,6 @@ import json
 
 import carCommunicationThread as communication
 
-SERVER_MAC_ADDRESS = '60:6C:66:B5:63:D1' # Aleksa bluetooth
-#SERVER_MAC_ADDRESS = '5C:F3:70:82:D4:8D'
-
 class Motor:
     def __init__(self, en_pin, in_pin, out_pin):
         self.en_pin = en_pin
@@ -425,14 +422,15 @@ class Robot:
     def status(self):
         # JSON Generation
         gear = self.gear
-        data = {}  
+        data = {}
+        tempList = list(self.cc.act_queue.queue)  
         data['values'] = []  
         data['values'].append({  
             # Put the name of the car also
             'gear':gear,
-            'speed': 'speedValue',
+            'speed': self.speedList[self.gear],
             'currentAction': self.currentAct,
-            'actionQueue': self.act_queue.queue
+            'actionQueue': tempList
         })
         JSON = json.dumps(data)
         return JSON
@@ -472,6 +470,10 @@ if __name__ == '__main__':
     speedDelta=5
     robot = Robot()
     # robot.command('dance')
+    
+    SERVER_MAC_ADDRESS = '60:6C:66:B5:63:D1' # Aleksa bluetooth
+    #SERVER_MAC_ADDRESS = '5C:F3:70:82:D4:8D' # Farhan bluetooth
+
 
     # Start the communication with server
     carCommunication = communication.communication_thread(SERVER_MAC_ADDRESS,robot)
