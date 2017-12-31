@@ -67,13 +67,10 @@ try:
                 client.send(data)
                     
                 # Waiting for update on position
-                #serverDataRecv = client.recv(dataSize).decode("utf-8")
-                #with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
-                serverDataRecv =client.recv(dataSize).decode("utf-8")
+                serverDataRecv = client.recv(dataSize).decode("utf-8")
                 print(serverDataRecv)
-                with open('data.json', 'w') as outfile:
-                    #output = json.dumps(serverDataRecv, indent=4,
-                    #                  separators=(',', ': '), ensure_ascii=False)
+                with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
+                #with open('data.json', 'w') as outfile:
                     outfile.write(serverDataRecv)
                 # Quit when user type quit in command line
                 if data == "QUIT":
