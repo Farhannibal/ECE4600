@@ -1,7 +1,10 @@
+# Updated version
+
 import bluetooth
 import threading
 
 BUFFSIZE = 1024
+
 
 # Library of command
 def listOfCommand(command):
@@ -13,12 +16,11 @@ def listOfCommand(command):
         "LEFT": 4,
         "RIGHT": 5,
         "STOP": 6,
-        "UPDATE": 7,        #Update the status of the car
         "QUIT": 98
-    }.get(command, 99)  # default will be ERROR MESSAGE
+    }.get(command, 99)  # default will be WAIT
 
 
-def messageHandler(connection, message):
+def messageHandler(connection, message, robot):
     # return:   True to keep the loop
     #           False to exit the loop
     # Error detection:
@@ -36,7 +38,8 @@ def messageHandler(connection, message):
 
             # Going up
             if listOfCommand(message) == 2:
-                print("Go up")
+                print("Go forward")
+                robot.command('fwd1')
 
             # Going back
             elif listOfCommand(message) == 3:
@@ -49,6 +52,7 @@ def messageHandler(connection, message):
             # Turn right
             elif listOfCommand(message) == 5:
                 print("Turn right")
+                robot.command('fwdRTurn')
 
             # STOP
             elif listOfCommand(message) == 6:
@@ -56,13 +60,16 @@ def messageHandler(connection, message):
 
 
             # Send back when the car finish they go:
-            connection.send("")
+            dataSendBack = robot.status()
+            connection.send(dataSendBack)
             return True
 
+
 class communication_thread(threading.Thread):
-    def __init__(self, serverAddress):
+    def __init__(self, serverAddress,robot):
         threading.Thread.__init__(self)
         self.serverAddress = serverAddress
+        self.robot=robot ## Adds the robot to queue up comands
         self.port = 3
         self.serverConnection = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
@@ -76,20 +83,15 @@ class communication_thread(threading.Thread):
         if listOfCommand(self.clientRecvData) == 0:
             self.serverConnection.send("ACK4C")
             print("Connection established")
-            count = 10
-            
+
             listening = True
             while listening:
                 # Keep listening to Server
                 self.clientRecvData = self.serverConnection.recv(BUFFSIZE).decode("utf-8")
-                listening = messageHandler(self.serverConnection, self.clientRecvData)
+                listening = messageHandler(self.serverConnection, self.clientRecvData, self.robot)
 
-                ## Do the simulation wait here (countdown the count until it reach 0):
-                #while count >0:
-
-                #    listening
-                    
         print("Cut connection")
+        self.robot.command('terminate')
         self.serverConnection.close()
 
     def run(self):

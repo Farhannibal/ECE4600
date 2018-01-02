@@ -4,11 +4,9 @@ import asyncio
 from random import randint
 import queue
 import time
+import json
 
 import carCommunicationThread as communication
-
-#SERVER_MAC_ADDRESS = '5C:F3:70:76:B6:5E'
-SERVER_MAC_ADDRESS = '60:6C:66:B5:63:D1' # Aleksa bluetooth
 
 class Motor:
     def __init__(self, en_pin, in_pin, out_pin):
@@ -61,21 +59,22 @@ class IR:
         self.motor = motor
 
     def setup(self):
-        GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def check(self):
         # Checks GPIO.input(self.pin) and performs the appropriate operation
-        detect = True
+        detect = False
         if GPIO.input(self.pin):
-            print(self.__name__ + ': Input was HIGH')
+            #print(self.__class__.__name__ + ': Input was HIGH')
             if self.motor.dc != speed:
                 self.motor.changeSpeed(speed)
-            detect = True
-        else:
-            print(self.__name__ + ': Input was LOW')
-            if self.motor.dc != speed - 5:
-                self.motor.changeSpeed(speed - 5)
             detect = False
+        else:
+            #print("%i" + ': Input was TRUE',self.pin)
+            if self.motor.dc != speed - 5:
+                self.motor.changeSpeed(speed - speedDelta)
+                #self.motor.changeSpeed(speed - 5)
+            detect = True
         return detect
 
 
@@ -101,8 +100,8 @@ class MotorCoordinator:
         self.evt_loop = evt_loop
         self.motor1 = Motor(self.EN1, self.I1, self.O1)
         self.motor2 = Motor(self.EN2, self.I2, self.O2)
-        self.IRL = IR(16, self.motor1)
-        self.IRR = IR(21, self.motor2)
+        self.IRL = IR(21, self.motor1)
+        self.IRR = IR(16, self.motor2)
 
         self.motor1.setup(self.FREQ, self.DC1)
         self.motor2.setup(self.FREQ, self.DC2)
@@ -120,12 +119,14 @@ class MotorCoordinator:
         self.schedule(motor.stop, end)
 
     def cw_motorForever(self, motor):
+        print('cw_motorForever')
         motor.cw
+        self.schedule(motor.cw, 0)
         # Create Future?
 
     def ccw_motorForever(self, motor):
         motor.ccw
-        # Create Future?
+        self.schedule(motor.ccw, 0)
 
     def scheTaskComplete(self, end):
         # print('schedule')
@@ -152,10 +153,10 @@ class MotorCoordinator:
         ## Scan for the Node before???
         if (self.IRL.check() or self.IRR.check()):
             print('reached node')
-            self.motor1.stop()
-            self.motor2.stop()
-            self.scanNode = False
-            self.inProg = False
+            #self.motor1.stop()
+            #self.motor2.stop()
+            #self.scanNode = False
+            #self.inProg = False
 
     def setScanNode(self, scan):
         self.scanNode = scan
@@ -198,11 +199,21 @@ class MotionCoordinator:
         self.mc.ccw_motorForever(self.mc.motor2)
         self.mc.setScanNode(True)
 
-    def turnRightFw(self):
-        self.mc.cw_motor(self.mc.motor1, start, end)
+    def turnRightFwIndef(self):
+        self.mc.setInProg()
+        self.mc.ccw_motorForever(self.mc.motor1)
+        self.mc.cw_motorForever(self.mc.motor2)
+        self.mc.setScanNode(True)
+
+    def turnRightFw(self, start, end):
+        print('turn right')
+        self.mc.setInProg()
+        self.mc.cw_motor(self.mc.motor2, start, end)
+        self.mc.ccw_motor(self.mc.motor1, start, end)
+        self.mc.scheTaskComplete(end)
 
     def poll(self):
-        print('....')
+        #print('....')
         self.mc.pollSensors()
         self.inProg = self.mc.inProg
 
@@ -247,7 +258,7 @@ class ActionCoordinator:
 
     def forward20ms(self):
         action = Action()
-        action.add_step(self.mc.forward, 0.2)
+        action.add_step(self.mc.forward, 0.5)
         self.act(action)
 
     def forwardUntil(self):
@@ -258,12 +269,28 @@ class ActionCoordinator:
 
     def turnRightFwd(self):
         action = Action()
-        action.add_step(self.mc.forward, 0.2)
-        action.add_step(self.mc.turnRightFw, 1)
+        #action.add_step(self.mc.forward, 0.2)
+        action.add_step(self.mc.turnRightFw, 2)
         self.act(action)
 
+    def turnRightFwdIndef(self):
+        action = Action()
+        self.mc.turnRightFwIndef()
+
+    def forwardStart(self):
+        print('Forward One Node START')
+
+    def forwardEnd(self):
+        print('Forward One Node END')
+
+    def forwardRTurnStart(self):
+        print('Forward One Node START')
+
+    def forwardRTurnEnd(self):
+        print('Forward One Node START')
+
     def poll(self):
-        print('...')
+        #print('...')
         self.mc.poll()
 
     def act(self, action):
@@ -292,27 +319,34 @@ class CommandCoordinator:
         print('dance')
         self.ac.back_and_forth(randint(2, 5), randint(1, 7))
 
+    def fwdDelta(self):
+        # Go forward one node
+        print("Forward Delta")
+        self.act_queue.put("forward20ms")  # self.ac.forward(0.2)
+
     def fwd1(self):
         # Go forward one node
-        print('Forward One Node')
+        
+        self.act_queue.put("forwardStart")
         # self.commandStart()
         # 
-        self.act_queue.put('forward20ms')  # self.ac.forward(0.2)
+        self.act_queue.put("forward20ms")  # self.ac.forward(0.2)
         ## Change current position (in xml file) to in between current node and next node (Ex: Current Node = Between Prev Node & Next Node)
-        self.act_queue.put('forwardUntil')  # self.ac.forwardUntil()
+        self.act_queue.put("forwardUntil")  # self.ac.forwardUntil()
         ## Change current position (in xml file) to next node (Ex: Current Node = Next Node, Prev and Next node null)
         # self.act_queue.put('commandComplete') #self.commandComplete()
+        self.act_queue.put("forwardEnd")
 
     def bck1(self):
         # Go Backward one node
-        print('Backward One Node')
+        print("Backward One Node")
         # Change current position to in between current node and next node
         self.ac.backward(0.2)
         self.ac.backwardUntil()
 
     def fwd2(self):
         # Go forward two node
-        print('Forward Two Node')
+        print("Forward Two Node")
         # Change current position to in between current node and next node
         self.fwd1()
         self.fwd1()
@@ -336,12 +370,15 @@ class CommandCoordinator:
 
     def fwdRTurn(self):
         # Go Backward one node
-        print('Making a forward right turn')
+        self.act_queue.put("forwardRTurnStart")
         # Change current position to in between current node and next node
-        self.fwd1()
-        self.act_queue.put('turnRightFwd')  # self.ac.turnRightFwd()
-        self.fwd2()
+        #self.fwd1()
+
+        self.act_queue.put("turnRightFwd")
+        self.act_queue.put("turnRightFwdIndef")  # self.ac.turnRightFwd()
+        #self.fwd2()
         # self.commandComplete()
+        self.act_queue.put('forwardRTurnEnd')
 
     def fwdLTurn(self):
         # Go Backward one node
@@ -356,12 +393,12 @@ class CommandCoordinator:
         self.commandComplete()
 
     def checkSensor(self):
-        print('Checking The Sensors...')
+        #print('Checking The Sensors...')
         self.ac.poll()
         # self.ac.back_and_forth(randint(2, 5), randint(1, 7))
 
     def poll(self):
-        print('Polling...')
+        #print('Polling...')
         self.checkSensor()
 
     def cleanup(self):
@@ -375,9 +412,23 @@ class Robot:
         self.cc = CommandCoordinator(ActionCoordinator(MotionCoordinator(MotorCoordinator(self.evt_loop))))
         self.speedList = [0, 55, 75, 95]
         self.gear = 3
+        self.currentAct="empty"
 
     def command(self, cmd):
+        #time.sleep(0.5)
         self.cmd_queue.put(cmd)
+        print(self.cmd_queue.queue)
+
+    def status(self):
+        # JSON Generation
+        gear = self.gear
+        data = {}
+        tempList = list(self.cc.act_queue.queue)  
+        data['values'] = []  
+        data['values'].append({"name":"honkhonk","gear":gear,"speed":self.speedList[self.gear],"currentAction":self.currentAct,"actionQueue":tempList
+        })
+        JSON = json.dumps(data, indent=4,separators=(',', ': '), ensure_ascii=False)
+        return JSON
 
     def run(self):
         while True:
@@ -386,10 +437,12 @@ class Robot:
                 if cmd == 'terminate':
                     break
                 else:
+                    self.currentCmd=cmd
                     self.cc.execute(cmd)
             if (not self.cc.act_queue.empty()) and (not self.cc.ac.mc.inProg):
                 time.sleep(0.5)  ## Sleep for testing purposes
                 act = self.cc.act_queue.get()
+                self.currentAct=act
                 self.cc.ac.execute(act)
 
             self.cc.poll()
@@ -408,26 +461,30 @@ if __name__ == '__main__':
     #
     GPIO.setmode(GPIO.BCM)
     #
-    speed = 95
+    speed = 100
+    speedDelta=5
     robot = Robot()
     # robot.command('dance')
+    
+    SERVER_MAC_ADDRESS = '60:6C:66:B5:63:D1' # Aleksa bluetooth
+    #SERVER_MAC_ADDRESS = '5C:F3:70:76:B6:5E' # My bluetooth
 
     # Start the communication with server
-    carCommunication = communication.communication_thread(SERVER_MAC_ADDRESS)
+    carCommunication = communication.communication_thread(SERVER_MAC_ADDRESS,robot)
     carCommunication.start()
 
-    robot.command('fwd1')
-    robot.command('fwd1')
-    robot.command('fwdRTurn')
-    robot.command('fwd1')
-    robot.command('fwd1')
-    robot.command('fwdRTurn')
-    robot.command('fwd1')
-    robot.command('fwd1')
-    robot.command('fwdRTurn')
-    robot.command('fwd1')
-    robot.command('fwd1')
-    robot.command('fwdRTurn')
+    robot.command('fwdDelta')
+    # robot.command('fwd1')
+    # robot.command('fwdRTurn')
+    # robot.command('fwd1')
+    # robot.command('fwd1')
+    # robot.command('fwdRTurn')
+    # robot.command('fwd1')
+    # robot.command('fwd1')
+    # robot.command('fwdRTurn')
+    # robot.command('fwd1')
+    # robot.command('fwd1')
+    # robot.command('fwdRTurn')
 
     # robot.command('terminate')
     robot.run()

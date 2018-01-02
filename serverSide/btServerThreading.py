@@ -1,69 +1,121 @@
 import bluetooth
-from commandList import listOfCommand
 from threading import Thread
 
+# Library of command
+def listOfCommand(command):
+	return{
+		"ACK4S":0,
+		"ACK4C":1,
+		"UP":2,
+		"DOWN":3,
+		"LEFT":4,
+		"RIGHT":5,
+		"STOP":6,
+		"QUIT":98
+	}.get(command, 99) # default will be WAIT
 
 class ThreadedServer(Thread):
-    def __init__(self, clientMAC, port):
-        Thread.__init__(self)
-        self.clientMAC = clientMAC
+    def __init__(self, hostMAC, port):
+        #Thread.__init__(self)
+        self.hostMAC = hostMAC
         self.port = port
+        self.btConnect = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        self.btConnect.bind((hostMACAddress, btPort))
+        print("Server is up!")
 
-    def run(self):
-        dataSize = 1024
+    def listen(self):
+        backlog = 3
+        print("Waiting for connection ... ")
+        self.btConnect.listen(backlog)
         while True:
-            # First check if client finish estasblishing connection
-            client.send("ACK4S")
-            serverDataRecv = client.recv(dataSize)
-            serverDataRecv = serverDataRecv.decode("utf-8")
+            client, address = self.btConnect.accept()
+            client.settimeout(60)
+            Thread(target = self.listenToClient, args = (client, address)).start()
 
-            # Second ACK the connection from client
-            if listOfCommand(serverDataRecv) == 1:
-                print("Connection established for "+self.clientMAC+" at port: "+str(self.port))
-                while 1:
-                    # After establish connection, now start command client
-                    data = input("Enter command for client with MAC: "+self.clientMAC+" at port: "+str(self.port))
-                    if listOfCommand(data) != 99:
-                        # If data is valid then start sending
+    def listenToClient(self, client, address):
+       
+        dataSize = 1024
+        # First check if client finish estasblishing connection
+        client.send("ACK4S")
+        serverDataRecv = client.recv(dataSize)
+        serverDataRecv = serverDataRecv.decode("utf-8")
 
-                        client.send(data)
-
-                        # Waiting for ACK signal
-                        serverDataRecv = client.recv(dataSize).decode("utf-8")
-
-                        # If ACK then keep going, if not resend data
-                        if listOfCommand(serverDataRecv) != 1:
-                            client.send(data)
-
-                        # if more than this point, give up on sending that --
-                        #  think more
-
-                        # Quit when user type quit in command line
-                        if data == "QUIT":
-                            # client.close()
-                            break
-                    else:
-                        print("Wrong command, please check the command list and repeat input !")
+        # Second ACK the connection from client
+        if listOfCommand(serverDataRecv) == 1:
+            print("Connection established for "+str(address))
+            while True:
+                # After establish connection, now start command client
+                data = input("Enter command for client: "+str(address))
+                if listOfCommand(data) != 99:
+                    # If data is valid then start sending
+                    client.send(data)
+                    
+                    # Waiting for update on position
+                    serverDataRecv = client.recv(dataSize).decode("utf-8")
+                    print(serverDataRecv)
+                    #with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
+                    #with open('data.json', 'w') as outfile:
+                        #outfile.write(serverDataRecv)
+                    # Quit when user type quit in command line
+                    if data == "QUIT":
+                        break
+                else:
+                    print("Wrong command, please check the command list and repeat input !")
         return False
 
+    #def run(self):
+    #    dataSize = 1024
+    #    while True:
+    #        # First check if client finish estasblishing connection
+    #        client.send("ACK4S")
+    #        serverDataRecv = client.recv(dataSize)
+    #        serverDataRecv = serverDataRecv.decode("utf-8")
 
-# Multithreaded Python server: Bluetooth server
-hostMACAddress = '5C:F3:70:76:B6:5E'
-btPort = 3  # default for pyBluez bluetooth
-backlog = 1
-dataSize = 1024
+    #        # Second ACK the connection from client
+    #        if listOfCommand(serverDataRecv) == 1:
+    #            print("Connection established for "+self.clientMAC+" at port: "+str(self.port))
+    #            while 1:
+    #                # After establish connection, now start command client
+    #                data = input("Enter command for client with MAC: "+self.clientMAC+" at port: "+str(self.port))
+    #                if listOfCommand(data) != 99:
+    #                    # If data is valid then start sending
 
-btConnect = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-btConnect.bind((hostMACAddress, btPort))
-# Spawn thread
-threads = []
+    #                    client.send(data)
 
-while True:
-    btConnect.listen(1)  # this will send to back log
-    (client, (MACconnect, port)) = btConnect.accept()
-    newthread = ThreadedServer(MACconnect, port)
-    newthread.start()
-    threads.append(newthread)
+    #                    # Waiting for ACK signal
+    #                    serverDataRecv = client.recv(dataSize).decode("utf-8")
 
-    for t in threads:
-        t.join()
+    #                    # If ACK then keep going, if not resend data
+    #                    if listOfCommand(serverDataRecv) != 1:
+    #                        client.send(data)
+
+    #                    # if more than this point, give up on sending that --
+    #                    #  think more
+
+    #                    # Quit when user type quit in command line
+    #                    if data == "QUIT":
+    #                        # client.close()
+    #                        break
+    #                else:
+    #                    print("Wrong command, please check the command list and repeat input !")
+    #    return False
+
+if __name__ == "__main__":
+    # Multithreaded Python server: Bluetooth server
+    hostMACAddress = '5C:F3:70:76:B6:5E'
+    btPort = 3  # default for pyBluez bluetooth
+
+     #Spawn thread
+    #threads = []
+
+    #while True:
+        #btConnect.listen(1)  # this will send to back log
+        #(client, (MACconnect, port)) = btConnect.accept()
+    newthread = ThreadedServer(hostMACAddress, btPort)
+    newthread.listen()
+
+        #newthread.start()
+        #threads.append(newthread)
+
+        #for t in threads:
+            #t.join()
