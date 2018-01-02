@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\carCommandHandler",
+    "\\clientSide",
     "\\serverSide"
   ],
-  "SelectedNode": "\\carCommandHandler\\mcont006.py",
+  "SelectedNode": "\\serverSide\\socketServer.py",
   "PreviewInSolutionExplorer": false
 }
