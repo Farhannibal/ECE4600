@@ -47,7 +47,7 @@ try:
 
     # Second ACK the connection from client
     if listOfCommand(serverDataRecv) == 1:
-        print("Connection established")
+        print("Connection established for "+str(clientInfo))
         while 1:
             # After establish connection, now start command client
             if control == 0:
@@ -77,12 +77,18 @@ try:
                     break
             else:
                 print("Wrong command, please check the command list and repeat input !")
+
+    # close both client and server
+    client.close()
+    btConnect.close()
+
+    #Finish the program
+    btConnect.close()
 except Exception as e:
-    print("Closing socket")
+    print("Server error! ")
     print(e)
+    print("Closing socket!")
     # close both client and server
     client.send("QUIT")
     client.close()
-
-    #Finish the program
     btConnect.close()
