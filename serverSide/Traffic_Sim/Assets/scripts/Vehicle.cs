@@ -12,6 +12,7 @@ public class Vehicle : MonoBehaviour {
     private int currPathID;
     private Base_station station;
     private float DEFAULT_SPEED = 3.0f;
+    private bool checkingCollision = false;
 
 
     // Use this for initialization
@@ -102,32 +103,57 @@ public class Vehicle : MonoBehaviour {
     bool CheckForCollisions(Vector3 targetPoint)
     {
         bool collisionDetected = false;
-
+        checkingCollision = true;
         //Vector3 fwd = transform.TransformDirection(Vector3.forward);
-        Vector3 targetVector3 = targetPoint - transform.position;
-        targetVector3.Normalize();
-        if (Physics.Raycast(transform.position, transform.position + targetVector3, 1.5f))
-        {
-            collisionDetected = true;
-            speed = 0.1f;
-        }
-        else
-        {
-            if (!isInsideIntersection)
-            {
-                speed = DEFAULT_SPEED;
-            }
-            else if(speed > 0)
-            {
-                speed = DEFAULT_SPEED;
-            }
-        }
+        //Vector3 targetVector3 = targetPoint - transform.position;
+        //targetVector3.Normalize();
+        //if (Physics.Raycast(transform.position, transform.position + targetVector3, 1.5f))
+        //{
+        //    collisionDetected = true;
+        //    speed = 0.1f;
+        //}
+        //else
+        //{
+        //    if (!isInsideIntersection)
+        //    {
+        //        speed = DEFAULT_SPEED;
+        //    }
+        //    else if(speed > 0)
+        //    {
+        //        speed = DEFAULT_SPEED;
+        //    }
+        //}
+
+        float step = speed * Time.deltaTime;
+        Vector3 originalPosition = transform.position;
+        transform.position = Vector3.MoveTowards(transform.position, currPath[curr], step);
+
+        transform.position = originalPosition;
+        checkingCollision = false;
 
         return collisionDetected;
     }
 
-	// Update is called once per frame
-	void Update () {
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(checkingCollision == true)
+        {
+            Debug.Log("Collision detected");
+            speed = 0.1f;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if(speed < DEFAULT_SPEED)
+        {
+            Debug.Log("Exiting collision");
+            speed = DEFAULT_SPEED;
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
         if(currPath == null)
         {
             currPath = station.GetNewPath(name, transform.position);
