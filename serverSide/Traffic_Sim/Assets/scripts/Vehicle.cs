@@ -6,6 +6,7 @@ public class Vehicle : MonoBehaviour {
     public Transform target;
     public float speed;
     public bool isInsideIntersection = false;
+    public bool collisionDetected = false;
 
     private int curr = 0;
     private List<Vector3> currPath;
@@ -92,46 +93,36 @@ public class Vehicle : MonoBehaviour {
         }
     }
 
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.green;
-    //    Vector3 targetDir = (currPath[curr] - transform.position);
-    //    targetDir.Normalize();
-    //    Gizmos.DrawLine(transform.position, transform.position + targetDir);
-    //    Gizmos.DrawWireSphere(transform.position + targetDir, 0.1f);
-    //}
-    bool CheckForCollisions(Vector3 targetPoint)
+    void CheckForCollisions(Vector3 targetPoint)
     {
-        bool collisionDetected = false;
         checkingCollision = true;
-        //Vector3 fwd = transform.TransformDirection(Vector3.forward);
-        //Vector3 targetVector3 = targetPoint - transform.position;
-        //targetVector3.Normalize();
-        //if (Physics.Raycast(transform.position, transform.position + targetVector3, 1.5f))
-        //{
-        //    collisionDetected = true;
-        //    speed = 0.1f;
-        //}
-        //else
-        //{
-        //    if (!isInsideIntersection)
-        //    {
-        //        speed = DEFAULT_SPEED;
-        //    }
-        //    else if(speed > 0)
-        //    {
-        //        speed = DEFAULT_SPEED;
-        //    }
-        //}
+        Vector3 fwd = transform.TransformDirection(Vector3.forward);
+        Vector3 targetVector3 = targetPoint - transform.position;
+        
+        targetVector3.Normalize();
+        
+        Vector3 scaledTarget = targetVector3;
+        scaledTarget.Scale(new Vector3(0.5f, 0.5f, 0.5f));
+        Debug.Log(scaledTarget);
 
-        float step = speed * Time.deltaTime;
-        Vector3 originalPosition = transform.position;
-        transform.position = Vector3.MoveTowards(transform.position, currPath[curr], step);
-
-        transform.position = originalPosition;
-        checkingCollision = false;
-
-        return collisionDetected;
+        Debug.DrawRay(transform.position + targetVector3, targetVector3);
+        if (Physics.Raycast(transform.position + targetVector3, targetVector3, 1.5f))
+        {
+            collisionDetected = true;
+            speed = 0.1f;
+        }
+        else
+        {
+            collisionDetected = false;
+            if (!isInsideIntersection)
+            {
+                speed = DEFAULT_SPEED;
+            }
+            else if(speed > 0)
+            {
+                speed = DEFAULT_SPEED;
+            }
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
