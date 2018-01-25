@@ -3,7 +3,10 @@
     "",
     "\\carCommandHandler",
     "\\clientSide",
-    "\\serverSide"
+    "\\serverSide",
+    "\\serverSide\\Traffic_Sim",
+    "\\serverSide\\Traffic_Sim\\Assets",
+    "\\serverSide\\Traffic_Sim\\Assets\\scripts"
   ],
   "SelectedNode": "\\serverSide\\socketServer.py",
   "PreviewInSolutionExplorer": false

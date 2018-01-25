@@ -12,7 +12,7 @@ public class Base_station : MonoBehaviour {
     private float DEFAULT_SPEED = 3.0f;
     private Intersection centerIntersect;
     public List<Vector3> path1In, path1Out, path2In, path2Out;
-    public  GameObject waypoints = GameObject.Find("Waypoints");
+    //public  GameObject waypoints = GameObject.Find("Waypoints");
 
     // private List<Transform> listOfPoints = waypoints.getComponentsInChildren<Transform>();
 
@@ -28,7 +28,7 @@ public class Base_station : MonoBehaviour {
         testObj.commands = "UP,RIGHT,UP,RIGHT,UP,RIGHT,UP,RIGHT";
         WriteCarData(testObj);
         // ReadCarData();
-        GetCarUpdate("test");
+        // GetCarUpdate("test");
         //--------------------------------------------------------------------------------------
 
         // Left and down path
