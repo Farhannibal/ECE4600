@@ -5,6 +5,6 @@
     "\\clientSide",
     "\\serverSide"
   ],
-  "SelectedNode": "\\serverSide\\socketServer.py",
+  "SelectedNode": "\\serverSide\\btServerThreading.py",
   "PreviewInSolutionExplorer": false
 }

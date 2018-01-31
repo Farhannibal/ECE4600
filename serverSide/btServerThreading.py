@@ -1,5 +1,6 @@
 import bluetooth
 from threading import Thread
+import time
 
 # Library of command
 def listOfCommand(command):
@@ -20,7 +21,8 @@ class ThreadedServer(Thread):
         self.hostMAC = hostMAC
         self.port = port
         self.btConnect = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        self.btConnect.bind((hostMACAddress, btPort))
+        self.btConnect.bind((hostMACAddress, port))
+        self.numberOfConnection = 0
         print("Server is up!")
 
     # Server will keep listening for new thread
@@ -50,6 +52,7 @@ class ThreadedServer(Thread):
         # Second ACK the connection from client
         if listOfCommand(serverDataRecv) == 1:
             print("Connection established for "+str(clientInfo))
+            self.numberOfConnection += 1
             while True:
                 # After establish connection, now start command client
                 if control == 0:
@@ -60,17 +63,23 @@ class ThreadedServer(Thread):
                     data = queue[counter]
                     counter = counter + 1
                 else:
-                    print("Please enter command for :"+str(clientInfo))
+                    print("Please enter command for "+str(clientInfo)+": ")
                     print("Available commands are UP, DOWN, LEFT, RIGHT, STOP or QUIT: ")
                     data = input()
 
                 if listOfCommand(data) != 99:
                 # If data is valid then start sending
 
+                #Also timing the connection time
+                    start = time.time()
                     client.send(data)
                     
                     # Waiting for update on position
                     serverDataRecv = client.recv(dataSize).decode("utf-8")
+                    end = time.time()
+
+                    print("Time needed for update = " + str(end-start))
+
                     print(serverDataRecv)
                     #with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
                     with open('data.json', 'w') as outfile:
