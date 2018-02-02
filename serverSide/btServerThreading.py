@@ -65,8 +65,8 @@ class ThreadedServer(Thread):
 
 if __name__ == "__main__":
     # Multithreaded Python server: Bluetooth server
-    # hostMACAddress = '5C:F3:70:76:B6:5E' # Huy Bluetooth
-    hostMACAddress = '60:6C:66:B5:63:D1' # Aleksa Bluetooth
+    hostMACAddress = '5C:F3:70:76:B6:5E' # Huy Bluetooth
+    #hostMACAddress = '60:6C:66:B5:63:D1' # Aleksa Bluetooth
     btPort = 3  # default for pyBluez bluetooth
 
      #Spawn thread
