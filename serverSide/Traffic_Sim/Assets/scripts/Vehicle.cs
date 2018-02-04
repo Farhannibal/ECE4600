@@ -14,6 +14,7 @@ public class Vehicle : MonoBehaviour {
     private Base_station station;
     private float DEFAULT_SPEED = 3.0f;
     private bool checkingCollision = false;
+    private Vector3 carNormal;
 
 
     // Use this for initialization
@@ -131,10 +132,10 @@ public class Vehicle : MonoBehaviour {
         {
             currPath = station.GetNewPath(name, transform.position);
         }
+        carNormal = currPath[curr] - transform.position;
+        carNormal.Normalize();
         if(name.Equals("Car"))
         {
-            Vector3 normalVec = currPath[curr] - transform.position;
-            normalVec.Normalize();
             Debug.Log("Normal "+normalVec);
         }
         transform.LookAt(currPath[curr]);
@@ -161,6 +162,152 @@ public class Vehicle : MonoBehaviour {
             }
         }
 	}
+
+    public List<string> ConvertPathToString()
+    {
+        // TODO
+        List<string> stringPath = new List<string>();
+        List<string> newCommands;
+        Vector3 normal = carNormal;
+        for(int i=curr; i<currPath.Count(); i++)
+        {
+            newCommands = DetermineDirection(transform.position, normal, currPath[curr]);
+            normal = DetermineNewNormal(normal, newCommand);
+            stringPath.Add(newCommand);
+        }
+    }
+
+    private List<string> DetermineDirection(Vector3 position, Vector3 normal, Vector3 target)
+    {
+        // TODO
+        List<string> directions = new List<string>();
+        if(position.x != target.x)
+        {
+            if(normal.x == 0)
+            {
+                if(target.x - position.x < 0)
+                {
+                    if(normal.z > 0)
+                    {
+                        directions.Add("LEFT");
+                        directions.Add("FORWARD");
+                    }
+                    if(normal.z < 0)
+                    {
+                        directions.Add("RIGHT");
+                        directions.Add("FORWARD");
+                    }
+                }
+                if(target.x - position.x > 0)
+                {
+                    if(normal.z > 0)
+                    {
+                        directions.Add("RIGHT");
+                        directions.Add("FORWARD");
+                    }
+                    if(normal.z < 0)
+                    {
+                        directions.Add("LEFT");
+                        directions.Add("FORWARD");
+                    }
+                }
+            }
+            else
+            {
+                directions.Add("FORWARD");
+            }
+        }
+        if(position.z != target.z)
+        {
+            if(normal.z == 0)
+            {
+                if(target.z - position.z < 0)
+                {
+                    if(normal.x > 0)
+                    {
+                        directions.Add("RIGHT");
+                        directions.Add("FORWARD");
+                    }
+                    if(normal.x < 0)
+                    {
+                        directions.Add("LEFT");
+                        directions.Add("FORWARD");
+                    }
+                }
+                if(target.z - position.z > 0)
+                {
+                    if(normal.x > 0)
+                    {
+                        directions.Add("LEFT");
+                        directions.Add("FORWARD");
+                    }
+                    if(normal.x < 0)
+                    {
+                        directions.Add("RIGHT");
+                        directions.Add("FORWARD");
+                    }
+                }
+            }
+            else
+            {
+                directions.Add("FORWARD");
+            }
+        }
+    }
+
+    private Vector3 DetermineNewNormal(Vector3 normal, string command)
+    {
+        // TODO
+        Vector3 newNormal;
+        if(command.Equals("FORWARD"))
+        {
+            newNormal = normal;
+        }
+        else if(command.Equals("LEFT"))
+        {
+            if(normal.x > 0)
+            {
+                newNormal = new Vector3(0, 0, 1);
+            }
+            else if(normal.x < 0)
+            {
+                newNormal = new Vector3(0, 0, -1);
+            }
+            else if(normal.z > 0)
+            {
+                newNormal = new Vector3(1, 0, 0);
+            }
+            else if(normal.z < 0)
+            {
+                newNormal = new Vector3(-1, 0, 0);
+            }
+        }
+        else if(command.Equals("RIGHT"))
+        {
+            if(normal.x > 0)
+            {
+                newNormal = new Vector3(0, 0, -1);
+            }
+            else if(normal.x < 0)
+            {
+                newNormal = new Vector3(0, 0, 1);
+            }
+            else if(normal.z > 0)
+            {
+                newNormal = new Vector3(1, 0, 0);
+            }
+            else if(normal.z < 0)
+            {
+                newNormal = new Vector3(-1, 0, 1);
+            }
+        }
+        else
+        {
+            Debug.LogError("Error in DetermineNewNormal.");
+        }
+
+        return newNormal;
+    }
 
     public void SkipNodes(int numNodes)
     {
