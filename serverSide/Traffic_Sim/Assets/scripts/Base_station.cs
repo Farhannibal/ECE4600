@@ -198,9 +198,9 @@ public class Base_station : MonoBehaviour {
         }
     }
 
-    private void ReadCarData()
+    private void ReadCarData(string name)
     {
-        string filePath = "Assets/carData.json";
+        string filePath = "Assets/"+name+".json";
 
         if (File.Exists(filePath))
         {
@@ -215,9 +215,9 @@ public class Base_station : MonoBehaviour {
         }
     }
 
-    public void GetCarUpdate(string name)
+    public void UpdateCar(string name)
     {
-        string filePath = "Assets/carUpdate.json";
+        string filePath = "Assets/"+name+".json";
         if (File.Exists(filePath))
         {
             // Read the json from the file into a string
@@ -239,11 +239,12 @@ public class Base_station : MonoBehaviour {
                     // Simulation is behind 
                     if(simQueueLen > loadedData.actionQueue.Length)
                     {
-
+                        car.SkipNodes(simQueueLen - loadedData.actionQueue.Length);
                     }
+                    // Simulation is ahead
                     else
                     {
-
+                        car.RedoNodes(loadedData.actionQueue.Length - simQueueLen);
                     }
                 }
             }

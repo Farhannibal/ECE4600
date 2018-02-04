@@ -8,6 +8,6 @@
     "\\serverSide\\Traffic_Sim\\Assets",
     "\\serverSide\\Traffic_Sim\\Assets\\scripts"
   ],
-  "SelectedNode": "\\serverSide\\socketServer.py",
+  "SelectedNode": "\\serverSide\\Traffic_Sim\\Assets\\Car.prefab",
   "PreviewInSolutionExplorer": false
 }

@@ -109,7 +109,7 @@ public class Vehicle : MonoBehaviour {
         if (Physics.Raycast(transform.position + targetVector3, targetVector3, 1.5f))
         {
             collisionDetected = true;
-            speed = 0.1f;
+            speed = 0.0f;
         }
         else
         {
@@ -125,33 +125,25 @@ public class Vehicle : MonoBehaviour {
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if(checkingCollision == true)
-        {
-            Debug.Log("Collision detected");
-            speed = 0.1f;
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        if(speed < DEFAULT_SPEED)
-        {
-            Debug.Log("Exiting collision");
-            speed = DEFAULT_SPEED;
-        }
-    }
-
     // Update is called once per frame
     void Update () {
         if(currPath == null)
         {
             currPath = station.GetNewPath(name, transform.position);
         }
+        if(name.Equals("Car"))
+        {
+            Vector3 normalVec = currPath[curr] - transform.position;
+            normalVec.Normalize();
+            Debug.Log("Normal "+normalVec);
+        }
         transform.LookAt(currPath[curr]);
         CheckIfInsideIntersection();
-        CheckForCollisions(currPath[curr]);
+        if(!isInsideIntersection)
+        {
+            CheckForCollisions(currPath[curr]);
+        }
+            
         if (transform.position != currPath[curr])
         {
             float step = speed * Time.deltaTime;
@@ -161,15 +153,43 @@ public class Vehicle : MonoBehaviour {
         else
         {
             curr++;
+            station.UpdateCar(name); //check if car is matching real world
             if(curr >= currPath.Count)
             {
-                // currPath.Clear();
                 currPath = station.GetNewPath(name, transform.position);
                 curr = 0;
             }
         }
 	}
 
+    public void SkipNodes(int numNodes)
+    {
+        // If enough nodes available
+        if(curr+numNodes < GetCurrPathLength())
+        {
+            this.transform.position = currPath[curr+numNodes];
+            curr += numNodes;
+        }
+        else
+        {
+            Debug.LogError("In SkipNodes, trying to skip more nodes than there are available.");
+        }
+    }
+    
+    public void RedoNodes(int numNodes)
+    {
+        // If enough nodes available
+        if(curr >= numNodes)
+        {
+            this.transform.position = currPath[curr-numNodes];
+            curr -= numNodes;
+        }
+        else
+        {
+            Debug.LogError("In RedoNodes, trying to redo more nodes than there are available.");
+        }
+    }
+    
     public void ChangeSpeed(float newSpeed)
     {
         speed = newSpeed;
@@ -182,6 +202,7 @@ public class Vehicle : MonoBehaviour {
 
     public int GetCurrPathLength()
     {
+        // TODO - This needs to do path length of forward, left , right queue not point queue
         return currPath.Count;
     }
 
