@@ -261,10 +261,10 @@ public class Base_station : MonoBehaviour {
 
         string path = null;
         #if UNITY_EDITOR
-            path = "Assets/CarData.json";
+            path = "Assets/data.json";
         #endif
         #if UNITY_STANDALONE
-            path = "Assets/CarData.json";
+            path = "Assets/data.json";
         #endif
 
         using (FileStream fs = new FileStream(path, FileMode.Create))

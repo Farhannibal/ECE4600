@@ -136,7 +136,7 @@ public class Vehicle : MonoBehaviour {
         carNormal.Normalize();
         if(name.Equals("Car"))
         {
-            Debug.Log("Normal "+normalVec);
+            Debug.Log("Normal "+carNormal);
         }
         transform.LookAt(currPath[curr]);
         CheckIfInsideIntersection();
@@ -169,12 +169,17 @@ public class Vehicle : MonoBehaviour {
         List<string> stringPath = new List<string>();
         List<string> newCommands;
         Vector3 normal = carNormal;
-        for(int i=curr; i<currPath.Count(); i++)
+        for(int i=curr; i<currPath.Count; i++)
         {
             newCommands = DetermineDirection(transform.position, normal, currPath[curr]);
-            normal = DetermineNewNormal(normal, newCommand);
-            stringPath.Add(newCommand);
+            normal = DetermineNewNormal(normal, newCommands[0]);
+            for(int j=0; j<newCommands.Count; j++)
+            {
+                stringPath.Add(newCommands[j]);
+            }
+            newCommands.Clear();
         }
+        return stringPath;
     }
 
     private List<string> DetermineDirection(Vector3 position, Vector3 normal, Vector3 target)
@@ -253,12 +258,13 @@ public class Vehicle : MonoBehaviour {
                 directions.Add("UP");
             }
         }
+        return directions;
     }
 
     private Vector3 DetermineNewNormal(Vector3 normal, string command)
     {
         // TODO
-        Vector3 newNormal;
+        Vector3 newNormal = new Vector3(0, 0, 0);
         if(command.Equals("UP"))
         {
             newNormal = normal;
