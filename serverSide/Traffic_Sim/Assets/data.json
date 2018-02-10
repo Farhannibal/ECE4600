@@ -1,11 +1,1 @@
-{
-    "values": [
-        {
-            "actionQueue": [],
-            "gear": 3,
-            "speed": 95,
-            "currentAction": "forwardEnd",
-            "name": "bigPine"
-        }
-    ]
-}
+{"commands":"UP,RIGHT,UP,RIGHT,UP,RIGHT,UP,RIGHT"}

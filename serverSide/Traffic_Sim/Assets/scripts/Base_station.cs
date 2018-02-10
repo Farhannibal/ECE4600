@@ -11,7 +11,7 @@ public class Base_station : MonoBehaviour {
     private Vehicle car;
     private float DEFAULT_SPEED = 3.0f;
     private Intersection centerIntersect;
-    public List<Vector3> path1In, path1Out, path2In, path2Out;
+    public List<Vector3> path0, path1, path2, path3;
     //public  GameObject waypoints = GameObject.Find("Waypoints");
 
     // private List<Transform> listOfPoints = waypoints.getComponentsInChildren<Transform>();
@@ -33,92 +33,92 @@ public class Base_station : MonoBehaviour {
 
         // Left and down path
         // TODO: Pick target location, then finish current path, find path with target and take all points to get there
-        path1In = new List<Vector3>();
-        path1In.Add(new Vector3(-2f, 1f, 2f));
-        path1In.Add(new Vector3(-4f, 1f, 2f));
-        path1In.Add(new Vector3(-7f, 1f, 2f));
-        path1In.Add(new Vector3(-7f, 1f, -4f));
-        path1In.Add(new Vector3(-7f, 1f, -7f));
-        path1In.Add(new Vector3(-4f, 1f, -7f));
-        path1In.Add(new Vector3(2f, 1f, -7f));
-        path1In.Add(new Vector3(2f, 1f, -4f));
-        path1In.Add(new Vector3(2f, 1f, -2f));
+        path0 = new List<Vector3>();
+        path0.Add(new Vector3(-2f, 1f, 2f));
+        path0.Add(new Vector3(-4f, 1f, 2f));
+        path0.Add(new Vector3(-7f, 1f, 2f));
+        path0.Add(new Vector3(-7f, 1f, -4f));
+        path0.Add(new Vector3(-7f, 1f, -7f));
+        path0.Add(new Vector3(-4f, 1f, -7f));
+        path0.Add(new Vector3(2f, 1f, -7f));
+        path0.Add(new Vector3(2f, 1f, -4f));
+        path0.Add(new Vector3(2f, 1f, -2f));
 
 
-        path1Out = new List<Vector3>();
-        path1Out.Add(new Vector3(-2f, 1f, -2f));
-        path1Out.Add(new Vector3(-2f, 1f, -3f));
-        path1Out.Add(new Vector3(-2f, 1f, -5f));
-        path1Out.Add(new Vector3(-3.5f, 1f, -5f));
-        path1Out.Add(new Vector3(-5f, 1f, -5f));
-        path1Out.Add(new Vector3(-5f, 1f, -3.5f));
-        path1Out.Add(new Vector3(-5f, 1f, -2f));
-        path1Out.Add(new Vector3(-3.5f, 1f, -2f));
-        path1Out.Add(new Vector3(-2f, 1f, -2f));
+        path1 = new List<Vector3>();
+        path1.Add(new Vector3(-2f, 1f, -2f));
+        path1.Add(new Vector3(-2f, 1f, -3f));
+        path1.Add(new Vector3(-2f, 1f, -5f));
+        path1.Add(new Vector3(-3.5f, 1f, -5f));
+        path1.Add(new Vector3(-5f, 1f, -5f));
+        path1.Add(new Vector3(-5f, 1f, -3.5f));
+        path1.Add(new Vector3(-5f, 1f, -2f));
+        path1.Add(new Vector3(-3.5f, 1f, -2f));
+        path1.Add(new Vector3(-2f, 1f, -2f));
 
         // Right and up path
-        path2In = new List<Vector3>();
-        path2In.Add(new Vector3(2f, 1f, -2f));
-        path2In.Add(new Vector3(4f, 1f, -2f));
-        path2In.Add(new Vector3(7f, 1f, -2f));
-        path2In.Add(new Vector3(7f, 1f, 2.5f));
-        path2In.Add(new Vector3(7f, 1f, 7f));
-        path2In.Add(new Vector3(2.5f, 1f, 7f));
-        path2In.Add(new Vector3(-2f, 1f, 7f));
-        path2In.Add(new Vector3(-2f, 1f, 3.5f));
-        path2In.Add(new Vector3(-2f, 1f, 2f));
+        path2 = new List<Vector3>();
+        path2.Add(new Vector3(2f, 1f, -2f));
+        path2.Add(new Vector3(4f, 1f, -2f));
+        path2.Add(new Vector3(7f, 1f, -2f));
+        path2.Add(new Vector3(7f, 1f, 2.5f));
+        path2.Add(new Vector3(7f, 1f, 7f));
+        path2.Add(new Vector3(2.5f, 1f, 7f));
+        path2.Add(new Vector3(-2f, 1f, 7f));
+        path2.Add(new Vector3(-2f, 1f, 3.5f));
+        path2.Add(new Vector3(-2f, 1f, 2f));
 
-        path2Out = new List<Vector3>();
-        path2Out.Add(new Vector3(2f, 1f, 2f));
-        path2Out.Add(new Vector3(2f, 1f, 3.5f));
-        path2Out.Add(new Vector3(2f, 1f, 5f));
-        path2Out.Add(new Vector3(3.5f, 1f, 5f));
-        path2Out.Add(new Vector3(5f, 1f, 5f));
-        path2Out.Add(new Vector3(5f, 1f, 3.5f));
-        path2Out.Add(new Vector3(5f, 1f, 2f));
-        path2Out.Add(new Vector3(3.5f, 1f, 2f));
-        path2Out.Add(new Vector3(2f, 1f, 2f));
+        path3 = new List<Vector3>();
+        path3.Add(new Vector3(2f, 1f, 2f));
+        path3.Add(new Vector3(2f, 1f, 3.5f));
+        path3.Add(new Vector3(2f, 1f, 5f));
+        path3.Add(new Vector3(3.5f, 1f, 5f));
+        path3.Add(new Vector3(5f, 1f, 5f));
+        path3.Add(new Vector3(5f, 1f, 3.5f));
+        path3.Add(new Vector3(5f, 1f, 2f));
+        path3.Add(new Vector3(3.5f, 1f, 2f));
+        path3.Add(new Vector3(2f, 1f, 2f));
 
-        //ShowPaths();
+        ShowPaths();
     }
 
     private void ShowPaths()
     {
-        for (int i = 0; i < path1In.Count; i++)
+        for (int i = 0; i < path0.Count; i++)
         {
             GameObject waypoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            waypoint.transform.position = path1In[i];
+            waypoint.transform.position = path0[i];
             Collider collider = waypoint.GetComponent<Collider>();
             collider.enabled = false;
 
         }
-        for (int i = 0; i < path1Out.Count; i++)
+        for (int i = 0; i < path1.Count; i++)
         {
             GameObject waypoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            waypoint.transform.position = path1Out[i];
+            waypoint.transform.position = path1[i];
             Collider collider = waypoint.GetComponent<Collider>();
             collider.enabled = false;
         }
-        for (int i = 0; i < path2In.Count; i++)
+        for (int i = 0; i < path2.Count; i++)
         {
             GameObject waypoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            waypoint.transform.position = path2In[i];
+            waypoint.transform.position = path2[i];
             Collider collider = waypoint.GetComponent<Collider>();
             collider.enabled = false;
         }
-        for (int i = 0; i < path2Out.Count; i++)
+        for (int i = 0; i < path3.Count; i++)
         {
             GameObject waypoint = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            waypoint.transform.position = path2Out[i];
+            waypoint.transform.position = path3[i];
             Collider collider = waypoint.GetComponent<Collider>();
             collider.enabled = false;
         }
     }
 	
 	// Update is called once per frame
-	void Update () {
-
-    }
+	//void Update () {
+    //
+    //}
 
     public List<Vector3> GetNewPath(string name, Vector3 currPos)
     {
@@ -129,22 +129,26 @@ public class Base_station : MonoBehaviour {
         {
             car = (Vehicle)vehicle.GetComponent("Vehicle");
         }
-        int randPath = UnityEngine.Random.Range(0, 4);
-        car.SetCurrPathID(randPath);
         List<Vector3> newPath = new List<Vector3>();
+        int prevPath = car.GetCurrPathID();
+        int randPath = UnityEngine.Random.Range(0, 4);
+        newPath = DetermineIntersectionPath(newPath, prevPath, randPath);
+        int numPoints = newPath.Count;
+        car.SetCurrPathID(randPath);
+        
         switch (randPath)
         {
             case 0:
-                newPath = CopyVec3ArrayList(this.path1In);
+                newPath = CopyVec3ArrayList(newPath, this.path0);
                 break;
             case 1:
-                newPath = CopyVec3ArrayList(this.path1Out);
+                newPath = CopyVec3ArrayList(newPath, this.path1);
                 break;
             case 2:
-                newPath = CopyVec3ArrayList(this.path2In);
+                newPath = CopyVec3ArrayList(newPath, this.path2);
                 break;
             case 3:
-                newPath = CopyVec3ArrayList(this.path2Out);
+                newPath = CopyVec3ArrayList(newPath, this.path3);
                 break;
             default:
                 Debug.Log("Error in getNewPath");
@@ -154,15 +158,52 @@ public class Base_station : MonoBehaviour {
         return newPath;
     }
 
-    private List<Vector3> CopyVec3ArrayList(List<Vector3> oldArray)
+    private List<Vector3> DetermineIntersectionPath(List<Vector3> path, int prevPathID, int newPathID)
     {
-        // Debug.Log(oldArray[0]);
-        List<Vector3> newArray = new List<Vector3>();
-        for (int i=0; i<oldArray.Count; i++)
+        Vector3 path0Enter = new Vector3(-2f, 1f, 2f);
+        // Vector3 left01 = new Vector3(-2f, 1f, 0f);
+        Vector3 path1Enter = new Vector3(-2f, 1f, -2f);
+        // Vector3 bot01 = new Vector3(0f, 1f, -2f);
+        Vector3 path2Enter = new Vector3(2f, 1f, -2f);
+        // Vector3 top23 = new Vector3(0f, 1f, 2f);
+        Vector3 path3Enter = new Vector3(2f, 1f, 2f);
+        // Vector3 right23 = new Vector3(2f, 1f, 0f);
+        switch (prevPathID)
         {
-            newArray.Add(oldArray[i]);
+            case 0:
+                if(newPathID == 0){
+                    path.Add(path3Enter);
+                }
+                break;
+            case 1:
+                if(newPathID == 3){
+                    path.Add(path2Enter);
+                }
+                break;
+            case 2:
+                if(newPathID == 2){
+                    path.Add(path1Enter);
+                }
+                break;
+            case 3:
+                if(newPathID == 1){
+                    path.Add(path0Enter);
+                }
+                break;
+            default:
+                Debug.LogError("Error in DetermineIntersectionPath");
+                break;
         }
-        return newArray;
+        return path;
+    }
+
+    private List<Vector3> CopyVec3ArrayList(List<Vector3> newList, List<Vector3> copyList)
+    {
+        for (int i=0; i<copyList.Count; i++)
+        {
+            newList.Add(copyList[i]);
+        }
+        return newList;
     }
 
     public void AddToQueue(string name)

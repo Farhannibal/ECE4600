@@ -3,7 +3,7 @@
         {
             "currentAction": "forwardEnd",
             "name": "Apple",
-            "actionQueue": [],
+            "actionQueue": ["UP, RIGHT, UP, RIGHT, UP"],
             "speed": 95,
             "gear": 3
         }

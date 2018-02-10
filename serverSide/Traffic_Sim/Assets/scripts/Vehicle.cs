@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class Vehicle : MonoBehaviour {
     public Transform target;
@@ -32,39 +33,6 @@ public class Vehicle : MonoBehaviour {
             curr = randPoint;
         }
 	}
-	
-    // Function to get a random path that is not the current path
-    int getNewPath()
-    {
-        int newPathID = 0;
-
-        int rInt = Random.Range(0, 4);
-        newPathID += rInt;
-
-        // Alternatively could store ineligible paths whenever path is updated and then check against that
-        // Currently all paths are allowed except U-turns
-        switch (currPathID)
-        {
-            case 0:
-                if (newPathID == 1)
-                    newPathID = getNewPath();
-                break;
-            case 1:
-                if (newPathID == 0)
-                    newPathID = getNewPath();
-                break;
-            case 2:
-                if (newPathID == 3)
-                    newPathID = getNewPath();
-                break;
-            case 3:
-                if (newPathID == 2)
-                    newPathID = getNewPath();
-                break;
-        }
-        return newPathID;
-    }
-
 
     void CheckIfInsideIntersection()
     {
@@ -104,7 +72,7 @@ public class Vehicle : MonoBehaviour {
         
         Vector3 scaledTarget = targetVector3;
         scaledTarget.Scale(new Vector3(0.5f, 0.5f, 0.5f));
-        Debug.Log(scaledTarget);
+        //Debug.Log(scaledTarget);
 
         Debug.DrawRay(transform.position + targetVector3, targetVector3);
         if (Physics.Raycast(transform.position + targetVector3, targetVector3, 1.5f))
@@ -154,14 +122,42 @@ public class Vehicle : MonoBehaviour {
         else
         {
             curr++;
-            station.UpdateCar(name); //check if car is matching real world
+            //station.UpdateCar(name); //check if car is matching real world
             if(curr >= currPath.Count)
             {
+                Debug.Log("Getting new path");
                 currPath = station.GetNewPath(name, transform.position);
+                List<string> export_path = ConvertPathToString();
+                ExportStringPath(export_path);
                 curr = 0;
             }
         }
 	}
+
+    private void ExportStringPath(List<string> string_path)
+    {
+        Debug.Log(string_path.Count);
+        string dataString = JsonUtility.ToJson(string_path);
+
+        string path = null;
+        #if UNITY_EDITOR
+            path = "Assets/car_path.json";
+        #endif
+        #if UNITY_STANDALONE
+            path = "Assets/car_path.json";
+        #endif
+
+        using (FileStream fs = new FileStream(path, FileMode.Create))
+        {
+            using (StreamWriter writer = new StreamWriter(fs))
+            {
+                writer.Write(dataString);
+            }
+        }
+        #if UNITY_EDITOR
+                UnityEditor.AssetDatabase.Refresh();
+        #endif
+    }
 
     public List<string> ConvertPathToString()
     {
@@ -182,6 +178,7 @@ public class Vehicle : MonoBehaviour {
         return stringPath;
     }
 
+    // Called by ConvertPathToString to determine directions needed between nodes
     private List<string> DetermineDirection(Vector3 position, Vector3 normal, Vector3 target)
     {
         // TODO
@@ -346,6 +343,11 @@ public class Vehicle : MonoBehaviour {
     public void ChangeSpeed(float newSpeed)
     {
         speed = newSpeed;
+    }
+
+    public int GetCurrPathID()
+    {
+        return this.currPathID;
     }
 
     public void SetCurrPathID(int newID)
