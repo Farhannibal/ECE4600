@@ -25,6 +25,7 @@ public class Base_station : MonoBehaviour {
         // JSON Testing
 
         CarData testObj = new CarData();
+        testObj.name = "Hoodie";
         testObj.commands = "UP,RIGHT,UP,RIGHT,UP,RIGHT,UP,RIGHT";
         WriteCarData(testObj);
         // ReadCarData();
@@ -258,7 +259,7 @@ public class Base_station : MonoBehaviour {
 
     public void UpdateCar(string name)
     {
-        string filePath = "Assets/"+name+".json";
+        string filePath = "Assets/"+name+"Status.json";
         if (File.Exists(filePath))
         {
             // Read the json from the file into a string
@@ -302,10 +303,10 @@ public class Base_station : MonoBehaviour {
 
         string path = null;
         #if UNITY_EDITOR
-            path = "Assets/data.json";
+            path = "Assets/"+data.name+"Control.json";
         #endif
         #if UNITY_STANDALONE
-            path = "Assets/data.json";
+            path = "Assets/"+data.name+"Control.json";
         #endif
 
         using (FileStream fs = new FileStream(path, FileMode.Create))
@@ -323,6 +324,7 @@ public class Base_station : MonoBehaviour {
     [Serializable]
     public class CarData
     {
+        public string name;
         public string commands;
     }
 

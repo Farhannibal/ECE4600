@@ -102,10 +102,7 @@ public class Vehicle : MonoBehaviour {
         }
         carNormal = currPath[curr] - transform.position;
         carNormal.Normalize();
-        if(name.Equals("Car"))
-        {
-            Debug.Log("Normal "+carNormal);
-        }
+
         transform.LookAt(currPath[curr]);
         CheckIfInsideIntersection();
         if(!isInsideIntersection)

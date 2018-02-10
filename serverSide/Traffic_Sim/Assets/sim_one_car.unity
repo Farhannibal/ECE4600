@@ -289,10 +289,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 430e7e0186ef99347846d101dbb5b9f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  path1In: []
-  path1Out: []
-  path2In: []
-  path2Out: []
+  path0: []
+  path1: []
+  path2: []
+  path3: []
 --- !u!23 &637153885
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -398,6 +398,10 @@ Prefab:
     - target: {fileID: 4093328409155806, guid: dac4da6b5a5568e4e9e862ac07b1a9a9, type: 2}
       propertyPath: m_RootOrder
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1059512010785298, guid: dac4da6b5a5568e4e9e862ac07b1a9a9, type: 2}
+      propertyPath: m_Name
+      value: Pineapple
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: dac4da6b5a5568e4e9e862ac07b1a9a9, type: 2}
