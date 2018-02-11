@@ -58,7 +58,9 @@ class ThreadedServer(Thread):
             client.send("ACK4S")
             serverDataRecv = client.recv(dataSize)
             serverDataRecv = serverDataRecv.decode("utf-8")
-        
+            fileControl = "Traffic_Sim/Assets/"+ clientName + "Control.json"
+            fileStatus = "Traffic_Sim/Assets/"+ clientName + "Status.json"
+
             #control = 0
             control = 2
 
@@ -72,7 +74,7 @@ class ThreadedServer(Thread):
                 while True:
                     # After establish connection, now start command client
                     if control == 0:
-                        queue = str(json.load(open("Traffic_Sim/Assets/CarData.json"))["commands"]).split(',')
+                        queue = str(json.load(open(fileControl))["commands"]).split(',')
                         control = 1
                         data = queue[0]
                     elif len(queue) > counter:
@@ -98,7 +100,7 @@ class ThreadedServer(Thread):
 
                         print(serverDataRecv)
                         #with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
-                        with open('data.json', 'w') as outfile:
+                        with open(fileStatus, 'w') as outfile:
                             outfile.write(serverDataRecv)
                         # Quit when user type quit in command line
                         if data == "QUIT":
