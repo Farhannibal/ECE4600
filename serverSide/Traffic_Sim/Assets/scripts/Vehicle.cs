@@ -100,8 +100,6 @@ public class Vehicle : MonoBehaviour {
         {
             currPath = station.GetNewPath(name, transform.position);
         }
-        carNormal = currPath[curr] - transform.position;
-        carNormal.Normalize();
 
         transform.LookAt(currPath[curr]);
         CheckIfInsideIntersection();
@@ -112,6 +110,11 @@ public class Vehicle : MonoBehaviour {
             
         if (transform.position != currPath[curr])
         {
+            // Update vehicle's normal vector3
+            carNormal = currPath[curr] - transform.position;
+            carNormal.Normalize();
+
+            // Move vehicles slightly towards target
             float step = speed * Time.deltaTime;
             transform.position = Vector3.MoveTowards(transform.position, currPath[curr], step);
         }
@@ -122,18 +125,17 @@ public class Vehicle : MonoBehaviour {
             //station.UpdateCar(name); //check if car is matching real world
             if(curr >= currPath.Count)
             {
-                Debug.Log("Getting new path");
                 currPath = station.GetNewPath(name, transform.position);
-                List<string> export_path = ConvertPathToString();
-                ExportStringPath(export_path);
                 curr = 0;
+                //List<string> export_path = ConvertPathToString();
+                //ExportStringPath(export_path);
             }
         }
 	}
 
     private void ExportStringPath(List<string> string_path)
     {
-        Debug.Log(string_path.Count);
+        // Debug.Log("string_path: "+string_path.Count);
         string dataString = JsonUtility.ToJson(string_path);
 
         string path = null;
@@ -161,7 +163,8 @@ public class Vehicle : MonoBehaviour {
         // TODO
         List<string> stringPath = new List<string>();
         List<string> newCommands;
-        Vector3 normal = carNormal;
+        Debug.Log("Car Normal: "+carNormal);
+        Vector3 normal = new Vector3(carNormal.x, carNormal.y, carNormal.z);
         for(int i=curr; i<currPath.Count; i++)
         {
             newCommands = DetermineDirection(transform.position, normal, currPath[curr]);
@@ -178,6 +181,10 @@ public class Vehicle : MonoBehaviour {
     // Called by ConvertPathToString to determine directions needed between nodes
     private List<string> DetermineDirection(Vector3 position, Vector3 normal, Vector3 target)
     {
+        //Debug.Log("Entering DetermineDirection");
+        //Debug.Log("Position: "+position);
+        //Debug.Log("Normal: "+normal);
+        //Debug.Log("Target: "+target);
         // TODO
         List<string> directions = new List<string>();
         if(position.x != target.x)
@@ -252,6 +259,11 @@ public class Vehicle : MonoBehaviour {
                 directions.Add("UP");
             }
         }
+        for(int t=0; t<directions.Count; t++)
+        {
+            //Debug.Log(directions[t]);
+        }
+
         return directions;
     }
 
