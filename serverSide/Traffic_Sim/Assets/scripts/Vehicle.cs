@@ -128,15 +128,19 @@ public class Vehicle : MonoBehaviour {
                 currPath = station.GetNewPath(name, transform.position);
                 curr = 0;
                 List<string> export_path = ConvertPathToString();
-                ExportStringPath(export_path);
+                station.ExportCarCommands(name, export_path);
             }
         }
 	}
 
     private void ExportStringPath(List<string> string_path)
     {
-        // Debug.Log("string_path: "+string_path.Count);
-        string dataString = JsonUtility.ToJson(string_path);
+        //string dataString = JsonUtility.ToJson(string_path);
+        string dataString = string_path[0];
+        for(int i=1; i<string_path.Count; i++)
+        {
+            dataString += ","+string_path[i];
+        }
 
         string path = null;
         #if UNITY_EDITOR
@@ -179,6 +183,7 @@ public class Vehicle : MonoBehaviour {
                 newCommands.Clear();
             }
         }
+
         return stringPath;
     }
 
@@ -263,10 +268,10 @@ public class Vehicle : MonoBehaviour {
                 directions.Add("UP");
             }
         }
-        for(int t=0; t<directions.Count; t++)
-        {
-            Debug.Log(directions[t]);
-        }
+        ///for(int t=0; t<directions.Count; t++)
+        //{
+        //    Debug.Log(directions[t]);
+        //}
 
         return directions;
     }

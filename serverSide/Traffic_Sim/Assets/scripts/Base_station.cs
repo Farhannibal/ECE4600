@@ -24,10 +24,10 @@ public class Base_station : MonoBehaviour {
         //--------------------------------------------------------------------------------------
         // JSON Testing
 
-        CarData testObj = new CarData();
-        testObj.name = "Hoodie";
-        testObj.commands = "UP,RIGHT,UP,RIGHT,UP,RIGHT,UP,RIGHT";
-        WriteCarData(testObj);
+        //CarData testObj = new CarData();
+        //testObj.name = "Hoodie";
+        //testObj.commands = "UP,RIGHT,UP,RIGHT,UP,RIGHT,UP,RIGHT";
+        //WriteCarData(testObj);
         // ReadCarData();
         // GetCarUpdate("test");
         //--------------------------------------------------------------------------------------
@@ -157,6 +157,21 @@ public class Base_station : MonoBehaviour {
         }
 
         return newPath;
+    }
+
+    public void ExportCarCommands(string name, List<string> string_path)
+    {
+        //string dataString = JsonUtility.ToJson(string_path);
+        string dataString = string_path[0];
+        for(int i=1; i<string_path.Count; i++)
+        {
+            dataString += ","+string_path[i];
+        }
+
+        CarData dataObj = new CarData();
+        dataObj.name = name;
+        dataObj.commands = dataString;
+        WriteCarData(dataObj);
     }
 
     private List<Vector3> DetermineIntersectionPath(List<Vector3> path, int prevPathID, int newPathID)
