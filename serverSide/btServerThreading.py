@@ -1,6 +1,7 @@
 import bluetooth
 import time
 from threading import Thread
+import json
 
 # Library of command
 def listOfCommand(command):
@@ -21,6 +22,7 @@ def namesOfCars(MACAddress):
         "34:C3:D2:C2:86:17":"Pen",
         "34:C3:D2:C0:0E:6D":"Pineapple",
         "34:C3:D2:F8:C9:50":"Apple",
+        "34:C3:D2:F8:D6:D1":"Hoodie",
         }.get(MACAddress, "nosupport")
 
 
@@ -61,8 +63,8 @@ class ThreadedServer(Thread):
             fileControl = "Traffic_Sim/Assets/"+ clientName + "Control.json"
             fileStatus = "Traffic_Sim/Assets/"+ clientName + "Status.json"
 
-            #control = 0
-            control = 2
+            control = 0
+            #control = 2
 
             counter = 1
             queue = []
@@ -112,8 +114,8 @@ class ThreadedServer(Thread):
 
 if __name__ == "__main__":
     # Multithreaded Python server: Bluetooth server
-    hostMACAddress = '5C:F3:70:76:B6:5E' # Huy Bluetooth
-    #hostMACAddress = '60:6C:66:B5:63:D1' # Aleksa Bluetooth
+    #hostMACAddress = '5C:F3:70:76:B6:5E' # Huy Bluetooth
+    hostMACAddress = '60:6C:66:B5:63:D1' # Aleksa Bluetooth
     btPort = 3  # default for pyBluez bluetooth
 
      #Spawn thread
