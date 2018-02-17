@@ -16,6 +16,7 @@ public class Vehicle : MonoBehaviour {
     private float DEFAULT_SPEED = 3.0f;
     private bool checkingCollision = false;
     private Vector3 carNormal;
+    private int cmdID = 0;
 
 
     // Use this for initialization
@@ -127,44 +128,25 @@ public class Vehicle : MonoBehaviour {
             {
                 currPath = station.GetNewPath(name, transform.position);
                 curr = 0;
-                List<string> export_path = ConvertPathToString();
-                station.ExportCarCommands(name, export_path);
+                List<string> export_path = ConvertPathToStringList();
+                station.ExportCarCommands(name, ConvertListToString(export_path), cmdID++);
             }
         }
 	}
 
-    private void ExportStringPath(List<string> string_path)
+    private string ConvertListToString(List<string> string_path)
     {
-        //string dataString = JsonUtility.ToJson(string_path);
         string dataString = string_path[0];
         for(int i=1; i<string_path.Count; i++)
         {
             dataString += ","+string_path[i];
         }
 
-        string path = null;
-        #if UNITY_EDITOR
-            path = "Assets/car_path.json";
-        #endif
-        #if UNITY_STANDALONE
-            path = "Assets/car_path.json";
-        #endif
-
-        using (FileStream fs = new FileStream(path, FileMode.Create))
-        {
-            using (StreamWriter writer = new StreamWriter(fs))
-            {
-                writer.Write(dataString);
-            }
-        }
-        #if UNITY_EDITOR
-                UnityEditor.AssetDatabase.Refresh();
-        #endif
+        return dataString;
     }
 
-    public List<string> ConvertPathToString()
+    public List<string> ConvertPathToStringList()
     {
-        // TODO
         List<string> stringPath = new List<string>();
         List<string> newCommands;
         Vector3 normal = new Vector3(carNormal.x, carNormal.y, carNormal.z);

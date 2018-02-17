@@ -159,18 +159,12 @@ public class Base_station : MonoBehaviour {
         return newPath;
     }
 
-    public void ExportCarCommands(string name, List<string> string_path)
+    public void ExportCarCommands(string name, string dataString, int cmdID)
     {
-        //string dataString = JsonUtility.ToJson(string_path);
-        string dataString = string_path[0];
-        for(int i=1; i<string_path.Count; i++)
-        {
-            dataString += ","+string_path[i];
-        }
-
         CarData dataObj = new CarData();
         dataObj.name = name;
         dataObj.commands = dataString;
+        dataObj.ID = cmdID;
         WriteCarData(dataObj);
     }
 
@@ -341,6 +335,7 @@ public class Base_station : MonoBehaviour {
     {
         public string name;
         public string commands;
+        public int ID;
     }
 
     [Serializable]
