@@ -127,8 +127,8 @@ public class Vehicle : MonoBehaviour {
             {
                 currPath = station.GetNewPath(name, transform.position);
                 curr = 0;
-                //List<string> export_path = ConvertPathToString();
-                //ExportStringPath(export_path);
+                List<string> export_path = ConvertPathToString();
+                ExportStringPath(export_path);
             }
         }
 	}
@@ -163,17 +163,21 @@ public class Vehicle : MonoBehaviour {
         // TODO
         List<string> stringPath = new List<string>();
         List<string> newCommands;
-        Debug.Log("Car Normal: "+carNormal);
         Vector3 normal = new Vector3(carNormal.x, carNormal.y, carNormal.z);
+        Vector3 carPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         for(int i=curr; i<currPath.Count; i++)
         {
-            newCommands = DetermineDirection(transform.position, normal, currPath[curr]);
-            normal = DetermineNewNormal(normal, newCommands[0]);
-            for(int j=0; j<newCommands.Count; j++)
+            newCommands = DetermineDirection(carPosition, normal, currPath[i]);
+            carPosition = currPath[i];
+            if(newCommands.Count > 0)
             {
-                stringPath.Add(newCommands[j]);
+                normal = DetermineNewNormal(normal, newCommands[0]);
+                for(int j=0; j<newCommands.Count; j++)
+                {
+                    stringPath.Add(newCommands[j]);
+                }
+                newCommands.Clear();
             }
-            newCommands.Clear();
         }
         return stringPath;
     }
@@ -185,7 +189,7 @@ public class Vehicle : MonoBehaviour {
         //Debug.Log("Position: "+position);
         //Debug.Log("Normal: "+normal);
         //Debug.Log("Target: "+target);
-        // TODO
+
         List<string> directions = new List<string>();
         if(position.x != target.x)
         {
@@ -261,7 +265,7 @@ public class Vehicle : MonoBehaviour {
         }
         for(int t=0; t<directions.Count; t++)
         {
-            //Debug.Log(directions[t]);
+            Debug.Log(directions[t]);
         }
 
         return directions;
@@ -287,11 +291,11 @@ public class Vehicle : MonoBehaviour {
             }
             else if(normal.z > 0)
             {
-                newNormal = new Vector3(1, 0, 0);
+                newNormal = new Vector3(-1, 0, 0);
             }
             else if(normal.z < 0)
             {
-                newNormal = new Vector3(-1, 0, 0);
+                newNormal = new Vector3(1, 0, 0);
             }
         }
         else if(command.Equals("RIGHT"))
@@ -310,7 +314,7 @@ public class Vehicle : MonoBehaviour {
             }
             else if(normal.z < 0)
             {
-                newNormal = new Vector3(-1, 0, 1);
+                newNormal = new Vector3(-1, 0, 0);
             }
         }
         else
