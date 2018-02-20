@@ -8,11 +8,12 @@ def listOfCommand(command):
 	return{
 		"ACK4S":0,
 		"ACK4C":1,
-		"UP":2,
+		"FORWARD":2,
 		"DOWN":3,
 		"LEFT":4,
 		"RIGHT":5,
 		"STOP":6,
+        "UPDATE":7,
 		"QUIT":98
 	}.get(command, 99) # default will be WAIT
 
@@ -33,7 +34,6 @@ class ThreadedServer(Thread):
         self.port = port
         self.btConnect = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.btConnect.bind((hostMACAddress, port))
-        self.numberOfConnection = 0
         print("Server is up!")
 
     def listen(self):
@@ -64,51 +64,64 @@ class ThreadedServer(Thread):
             fileStatus = "Traffic_Sim/Assets/"+ clientName + "Status.json"
 
             control = 0
-            #control = 2
-
             counter = 1
+
+            id = 0
+            compareid = 0
+
             queue = []
 
             # Second ACK the connection from client
             if listOfCommand(serverDataRecv) == 1:
                 print("Connection established for "+clientName)
-                self.numberOfConnection += 1
                 while True:
                     # After establish connection, now start command client
-                    if control == 0:
-                        queue = str(json.load(open(fileControl))["commands"]).split(',')
-                        control = 1
-                        data = queue[0]
+                    if len(queue) == 0 and control==0:
+                    #if control == 0:
+                        id = str(json.load(open(fileControl))["ID"])
+                        if(compareid != id): # this mean we have new file
+                            control = 1
+                            counter = 1
+                            queue = str(json.load(open(fileControl))["commands"]).split(',')
+                            data = queue[0]
+                            compareid = id
+                           
                     elif len(queue) > counter:
                         data = queue[counter]
                         counter = counter + 1
-                    else:
-                        print("Please enter command for "+clientName+": ")
-                        print("Available commands are UP, DOWN, LEFT, RIGHT, STOP or QUIT: ")
-                        data = input()
+                  
+                        ## Else : Ignore the file
+
+                    #else:
+                        ##Debugging purpose
+                        #print("Please enter command for "+clientName+": ")
+                        #print("Available commands are UP, DOWN, LEFT, RIGHT, STOP or QUIT: ")
+                        #data = input()
 
                     if listOfCommand(data) != 99:
-                    # If data is valid then start sending
+                    # If data is valid then start sending                        
 
-                    #Also timing the connection time
-                        start = time.time()
-                        client.send(data)
+                        if counter == len(queue): # Stop when the queue is cleared
+                            control = 0
+                            queue=[]
+                        else:
+                        #Also timing the connection time
+                            start = time.time()
+                            client.send(data)
                     
-                        # Waiting for update on position
-                        serverDataRecv = client.recv(dataSize).decode("utf-8")
-                        end = time.time()
+                            # Waiting for update on position
+                            serverDataRecv = client.recv(dataSize).decode("utf-8")
+                            end = time.time()
 
-                        print("Time needed for update = " + str(end-start))
+                            print("Time needed for communicate = " + str(end-start))
 
-                        print(serverDataRecv)
-                        #with open('Traffic_Sim/Assets/data.json', 'w') as outfile:
-                        with open(fileStatus, 'w') as outfile:
-                            outfile.write(serverDataRecv)
-                        # Quit when user type quit in command line
-                        if data == "QUIT":
-                            break
-                    else:
-                        print("Wrong command, please check the command list and repeat input !")
+                            if listOfCommand(data) == 7:
+                                print(serverDataRecv)
+                                with open(fileStatus, 'w') as outfile:
+                                    outfile.write(serverDataRecv)
+                            # Quit when user type quit in command line
+                            if listOfCommand(data) == 98:
+                                break
                 client.close()
         return False
 
@@ -118,12 +131,6 @@ if __name__ == "__main__":
     hostMACAddress = '60:6C:66:B5:63:D1' # Aleksa Bluetooth
     btPort = 3  # default for pyBluez bluetooth
 
-     #Spawn thread
-    #threads = []
-
-    #while True:
-        #btConnect.listen(1)  # this will send to back log
-        
     newthread = ThreadedServer(hostMACAddress, btPort)
     newthread.listen()
 

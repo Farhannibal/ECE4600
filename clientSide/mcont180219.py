@@ -6,7 +6,11 @@ import queue
 import time
 import json
 
-import carCommunicationThread as communication
+#import carCommunicationThread as communication
+
+speed = 100
+speedDelta=5
+#errCor=True
 
 class Motor:
     def __init__(self, en_pin, in_pin, out_pin):
@@ -54,27 +58,35 @@ class Motor:
 
 
 class IR:
-    def __init__(self, pin, motor):
+    def __init__(self, pin, motor,speedDiff):
         self.pin = pin
         self.motor = motor
+        self.errCor = True
+        self.speedDiff = speedDiff
 
     def setup(self):
         GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        
+    def setErrCor(self,set):
+        self.errCor=set
 
     def check(self):
         # Checks GPIO.input(self.pin) and performs the appropriate operation
         detect = False
         if GPIO.input(self.pin):
             #print(self.__class__.__name__ + ': Input was HIGH')
-            if self.motor.dc != speed:
-                self.motor.changeSpeed(speed)
+            if (self.motor.dc != speed - self.speedDiff):
+                self.motor.changeSpeed(speed - self.speedDiff)
             detect = False
         else:
-            #print("%i" + ': Input was TRUE',self.pin)
-            if self.motor.dc != speed - 5:
-                self.motor.changeSpeed(speed - speedDelta)
+            
+            if (self.errCor and self.motor.dc != speed - self.speedDiff - speedDelta):
+                print("%i" + ': Input was TRUE',self.pin)
+                self.motor.changeSpeed(speed - self.speedDiff - speedDelta)
                 #self.motor.changeSpeed(speed - 5)
             detect = True
+        if (self.errCor==False):
+            self.motor.changeSpeed(speed)
         return detect
 
 
@@ -84,24 +96,28 @@ class MotorCoordinator:
     EN1 = 26
     I1 = 2
     O1 = 3
-    DC1 = 95
+    DC1 = speed
 
     EN2 = 13
     I2 = 17
     O2 = 27
-    DC2 = 95
+    DC2 = speed-1
 
-    speed = 95
+    #speed = 100
 
     scanNode = False
+    scanNodeInv = False
+    scanNodeR = False
+    scanNodeL = False
+    
     inProg = False
 
     def __init__(self, evt_loop):
         self.evt_loop = evt_loop
         self.motor1 = Motor(self.EN1, self.I1, self.O1)
         self.motor2 = Motor(self.EN2, self.I2, self.O2)
-        self.IRL = IR(21, self.motor1)
-        self.IRR = IR(16, self.motor2)
+        self.IRL = IR(16, self.motor1,0)
+        self.IRR = IR(21, self.motor2,1)
 
         self.motor1.setup(self.FREQ, self.DC1)
         self.motor2.setup(self.FREQ, self.DC2)
@@ -142,11 +158,45 @@ class MotorCoordinator:
 
     def pollSensors(self):
         ## Scan for the Node before???
-        if (self.scanNode and self.IRL.check() and self.IRR.check()):
+        if(self.scanNode):
+            self.IRL.setErrCor(True)
+            self.IRR.setErrCor(True)
+            #print('error correction is true')
+            left=self.IRL.check()
+            right=self.IRR.check()
+        else:
+            self.IRL.setErrCor(False)
+            self.IRR.setErrCor(False)
+            #print('error correction is false')
+            left=self.IRL.check()
+            right=self.IRR.check()
+        
+        if (self.scanNode and left and right):
             print('reached node')
             self.motor1.stop()
             self.motor2.stop()
             self.scanNode = False
+            self.inProg = False
+            
+        if (self.scanNodeInv and (not left) and (not right)):
+            print('reached node')
+            self.motor1.stop()
+            self.motor2.stop()
+            self.scanNodeInv = False
+            self.inProg = False
+
+        if (self.scanNodeR and not self.IRR.check()):
+            print('reached node')
+            self.motor1.stop()
+            self.motor2.stop()
+            self.scanNodeR = False
+            self.inProg = False
+
+        if (self.scanNodeL and right):
+            print('reached node')
+            self.motor1.stop()
+            self.motor2.stop()
+            self.scanNodeL = False
             self.inProg = False
 
     def pollSensorsExitNode(self):
@@ -159,10 +209,52 @@ class MotorCoordinator:
             #self.inProg = False
 
     def setScanNode(self, scan):
-        self.scanNode = scan
+        #self.scanNode = scan
+        self.schedule(self.setScanNodeFunc, 0.1)
+
+    def setScanNodeInv(self, scan):
+        #self.scanNodeInv = scan
+        self.schedule(self.setScanNodeInvFunc, 0.1)
+
+    def setScanNodeR(self, scan):
+        #self.scanNodeInv = scan
+        self.schedule(self.setScanNodeRFunc, 0.1)
+
+    def setScanNodeL(self, scan):
+        #self.scanNodeInv = scan
+        self.schedule(self.setScanNodeLFunc, 0.1)
+        
+    def setScanNodeFunc(self):
+        self.scanNode = True
+        #self.schedule(self.scanNode = scan, 0.1)
+
+    def setScanNodeInvFunc(self):
+        self.scanNodeInv = True
+        #self.schedule(self.scanNodeInv = scan, 0.1)
+
+    def setScanNodeRFunc(self):
+        self.scanNodeR = True
+        #self.schedule(self.scanNodeR = scan, 0.1)
+
+    def setScanNodeLFunc(self):
+        self.scanNodeL = True
+        #self.schedule(self.scanNodeL = scan, 0.1)
 
     def setInProg(self):
         self.inProg = True
+
+    def clearInProg(self):
+        self.motor1.stop()
+        self.motor2.stop()
+        self.scanNode = False
+        self.scanNodeInv = False
+        self.scanNodeR = False
+        self.scanNodeL = False
+        self.inProg = False
+
+    def changeMotorSpeed(self,speedChange):
+        self.motor1.changeSpeed(speedChange)
+        self.motor2.changeSpeed(speedChange)
 
     def cleanup(self):
         self.motor1.cleanup()
@@ -174,6 +266,7 @@ class MotionCoordinator:
     def __init__(self, motor_coordinator):
         self.mc = motor_coordinator
         self.inProg = False
+        self.stop = False
 
     def forward(self, start, end):
         # print('forward')
@@ -193,6 +286,20 @@ class MotionCoordinator:
         self.mc.cw_motorForever(self.mc.motor2)
         self.mc.setScanNode(True)
 
+    def forwardUntilNode(self):
+        # print('forward')
+        self.mc.setInProg()
+        self.mc.cw_motorForever(self.mc.motor1)
+        self.mc.cw_motorForever(self.mc.motor2)
+        self.mc.setScanNodeInv(True)
+
+    def forwardUntilRTurn(self):
+        # print('forward')
+        self.mc.setInProg()
+        self.mc.cw_motorForever(self.mc.motor1)
+        self.mc.cw_motorForever(self.mc.motor2)
+        self.mc.setScanNodeR(True)
+
     def backwardUntil(self):
         self.mc.setInProg()
         self.mc.ccw_motorForever(self.mc.motor1)
@@ -201,21 +308,38 @@ class MotionCoordinator:
 
     def turnRightFwIndef(self):
         self.mc.setInProg()
-        self.mc.ccw_motorForever(self.mc.motor1)
+        #self.mc.ccw_motorForever(self.mc.motor1)
         self.mc.cw_motorForever(self.mc.motor2)
-        self.mc.setScanNode(True)
+        self.mc.setScanNodeR(True)
 
     def turnRightFw(self, start, end):
         print('turn right')
         self.mc.setInProg()
         self.mc.cw_motor(self.mc.motor2, start, end)
-        self.mc.ccw_motor(self.mc.motor1, start, end)
+        #self.mc.ccw_motor(self.mc.motor1, start, end)
         self.mc.scheTaskComplete(end)
+
+    def stop(self):
+        print('Stop')
+        self.mc.changeMotorSpeed(0)
+        self.stop = True
+
+    def start(self):
+        print('Start')
+        self.mc.changeMotorSpeed(speed)
+        self.stop = False
+
+    def clear(self):
+        print('Clear')
+        self.mc.clearInProg()
 
     def poll(self):
         #print('....')
-        self.mc.pollSensors()
-        self.inProg = self.mc.inProg
+        if (self.stop):
+            self.mc.changeMotorSpeed(0)
+        else:
+            self.mc.pollSensors()
+            self.inProg = self.mc.inProg
 
     def cleanup(self):
         self.mc.cleanup()
@@ -240,6 +364,7 @@ class Action:
 class ActionCoordinator:
     def __init__(self, motion_coordinator):
         self.mc = motion_coordinator
+        self.currentCommand = ""
 
     def execute(self, cmd):
         getattr(self, cmd)()
@@ -267,10 +392,14 @@ class ActionCoordinator:
         # action.add_step(self.mc.forward, 0.2)
         # self.act(action)
 
+    def forwardUntilNode(self):
+        action = Action()
+        self.mc.forwardUntilNode()
+
     def turnRightFwd(self):
         action = Action()
         #action.add_step(self.mc.forward, 0.2)
-        action.add_step(self.mc.turnRightFw, 2)
+        action.add_step(self.mc.turnRightFw, 0.5)
         self.act(action)
 
     def turnRightFwdIndef(self):
@@ -279,15 +408,19 @@ class ActionCoordinator:
 
     def forwardStart(self):
         print('Forward One Node START')
+        self.currentCommand = "Forward"
 
     def forwardEnd(self):
         print('Forward One Node END')
+        self.currentCommand = ""
 
     def forwardRTurnStart(self):
-        print('Forward One Node START')
+        print('Right One Node START')
+        self.currentCommand = "Right"
 
     def forwardRTurnEnd(self):
-        print('Forward One Node START')
+        print('Right One Node End')
+        self.currentCommand = ""
 
     def poll(self):
         #print('...')
@@ -321,32 +454,32 @@ class CommandCoordinator:
 
     def fwdDelta(self):
         # Go forward one node
-        print("Forward Delta")
-        self.act_queue.put("forward20ms")  # self.ac.forward(0.2)
+        print('Forward Delta')
+        self.act_queue.put('forward20ms')  # self.ac.forward(0.2)
 
     def fwd1(self):
         # Go forward one node
         
-        self.act_queue.put("forwardStart")
+        self.act_queue.put('forwardStart')
         # self.commandStart()
         # 
-        self.act_queue.put("forward20ms")  # self.ac.forward(0.2)
+        self.act_queue.put('forwardUntilNode')  # self.ac.forward(0.2)
         ## Change current position (in xml file) to in between current node and next node (Ex: Current Node = Between Prev Node & Next Node)
-        self.act_queue.put("forwardUntil")  # self.ac.forwardUntil()
+        self.act_queue.put('forwardUntil')  # self.ac.forwardUntil()
         ## Change current position (in xml file) to next node (Ex: Current Node = Next Node, Prev and Next node null)
         # self.act_queue.put('commandComplete') #self.commandComplete()
-        self.act_queue.put("forwardEnd")
+        self.act_queue.put('forwardEnd')
 
     def bck1(self):
         # Go Backward one node
-        print("Backward One Node")
+        print('Backward One Node')
         # Change current position to in between current node and next node
         self.ac.backward(0.2)
         self.ac.backwardUntil()
 
     def fwd2(self):
         # Go forward two node
-        print("Forward Two Node")
+        print('Forward Two Node')
         # Change current position to in between current node and next node
         self.fwd1()
         self.fwd1()
@@ -370,12 +503,12 @@ class CommandCoordinator:
 
     def fwdRTurn(self):
         # Go Backward one node
-        self.act_queue.put("forwardRTurnStart")
+        self.act_queue.put('forwardRTurnStart')
         # Change current position to in between current node and next node
         #self.fwd1()
 
-        self.act_queue.put("turnRightFwd")
-        self.act_queue.put("turnRightFwdIndef")  # self.ac.turnRightFwd()
+        self.act_queue.put('turnRightFwd')
+        self.act_queue.put('turnRightFwdIndef')  # self.ac.turnRightFwd()
         #self.fwd2()
         # self.commandComplete()
         self.act_queue.put('forwardRTurnEnd')
@@ -410,9 +543,9 @@ class Robot:
         self.cmd_queue = queue.Queue()
         self.evt_loop = asyncio.get_event_loop()
         self.cc = CommandCoordinator(ActionCoordinator(MotionCoordinator(MotorCoordinator(self.evt_loop))))
-        self.speedList = [0, 55, 75, 95]
+        self.speedList = [0, 60, 80, 100]
         self.gear = 3
-        self.currentAct="empty"
+        self.currentAct='empty'
 
     def command(self, cmd):
         #time.sleep(0.5)
@@ -422,13 +555,33 @@ class Robot:
     def status(self):
         # JSON Generation
         gear = self.gear
-        data = {}
-        tempList = list(self.cc.act_queue.queue)  
+        data = {}  
         data['values'] = []  
-        data['values'].append({"gear":gear,"speed":self.speedList[self.gear],"currentAction":self.currentAct,"actionQueue":tempList
+        data['values'].append({  
+            'gear':gear,
+            'speed': 'speedValue',
+            'currentAction': self.currentAct,
+            'actionQueue': self.act_queue.queue
         })
-        JSON = json.dumps(data, indent=4,separators=(',', ': '), ensure_ascii=False)
+        JSON = json.dumps(data)
         return JSON
+
+    def changeGear3(self):
+        self.gear = 3
+
+    def changeGear2(self):
+        self.gear = 2
+
+    def changeGear1(self):
+        self.gear = 1
+
+    def changeGear0(self):
+        self.gear = 0
+
+    def clear(self):
+        self.cc.act_queue.clear()
+        self.cc.ac.mc.clear()
+
 
     def run(self):
         while True:
@@ -436,13 +589,18 @@ class Robot:
                 cmd = self.cmd_queue.get()
                 if cmd == 'terminate':
                     break
+                elif cmd == 'stop':
+                    self.cc.ac.mc.stop()
+                elif cmd == 'start':
+                    self.cc.ac.mc.start()
                 else:
                     self.currentCmd=cmd
                     self.cc.execute(cmd)
             if (not self.cc.act_queue.empty()) and (not self.cc.ac.mc.inProg):
                 time.sleep(0.5)  ## Sleep for testing purposes
                 act = self.cc.act_queue.get()
-                self.currentAct=act
+                #self.currentAct=act
+                self.currentAct=self.cc.ac.currentCommand
                 self.cc.ac.execute(act)
 
             self.cc.poll()
@@ -461,30 +619,31 @@ if __name__ == '__main__':
     #
     GPIO.setmode(GPIO.BCM)
     #
-    speed = 100
-    speedDelta=5
-    robot = Robot()
-    # robot.command('dance')
-    
+    #SERVER_MAC_ADDRESS = '5C:F3:70:82:D4:8D' # Farhan bluetooth
     SERVER_MAC_ADDRESS = '60:6C:66:B5:63:D1' # Aleksa bluetooth
     #SERVER_MAC_ADDRESS = '5C:F3:70:76:B6:5E' # My bluetooth
 
-    # Start the communication with server
+    speed = 100
+    speedDelta=50
+    robot = Robot()
+    # robot.command('dance')
+
+     #Start the communication with server
     carCommunication = communication.communication_thread(SERVER_MAC_ADDRESS,robot)
     carCommunication.start()
 
-    robot.command('fwdDelta')
-    # robot.command('fwd1')
-    # robot.command('fwdRTurn')
-    # robot.command('fwd1')
-    # robot.command('fwd1')
-    # robot.command('fwdRTurn')
-    # robot.command('fwd1')
-    # robot.command('fwd1')
-    # robot.command('fwdRTurn')
+    #robot.command('fwdDelta')
+    #robot.command('fwd1')
+    #robot.command('fwdRTurn')
+    #robot.command('fwd1')
+    #robot.command('fwd1')
+    #robot.command('fwdRTurn')
     # robot.command('fwd1')
     # robot.command('fwd1')
-    # robot.command('fwdRTurn')
+    #robot.command('fwdRTurn')
+    # robot.command('fwd1')
+    # robot.command('fwd1')
+    #robot.command('fwdRTurn')
 
     # robot.command('terminate')
     robot.run()

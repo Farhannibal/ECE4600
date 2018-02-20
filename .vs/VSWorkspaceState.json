@@ -1,12 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\carCommandHandler",
     "\\clientSide",
     "\\serverSide",
-    "\\serverSide\\Traffic_Sim",
-    "\\serverSide\\Traffic_Sim\\Assets",
-    "\\serverSide\\Traffic_Sim\\Assets\\scripts"
+    "\\serverSide\\Traffic_Sim\\Assets"
   ],
   "SelectedNode": "\\serverSide\\btServerThreading.py",
   "PreviewInSolutionExplorer": false
