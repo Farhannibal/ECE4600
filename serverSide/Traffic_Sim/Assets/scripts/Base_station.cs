@@ -26,7 +26,7 @@ public class Base_station : MonoBehaviour {
 
         //CarData testObj = new CarData();
         //testObj.name = "Hoodie";
-        //testObj.commands = "UP,RIGHT,UP,RIGHT,UP,RIGHT,UP,RIGHT";
+        //testObj.commands = "FORWARD,RIGHT,FORWARD,RIGHT,FORWARD,RIGHT,FORWARD,RIGHT";
         //WriteCarData(testObj);
         // ReadCarData();
         // GetCarUpdate("test");

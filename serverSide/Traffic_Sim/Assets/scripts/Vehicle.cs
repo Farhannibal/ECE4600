@@ -187,12 +187,12 @@ public class Vehicle : MonoBehaviour {
                     if(normal.z > 0)
                     {
                         directions.Add("LEFT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                     if(normal.z < 0)
                     {
                         directions.Add("RIGHT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                 }
                 if(target.x - position.x > 0)
@@ -200,18 +200,18 @@ public class Vehicle : MonoBehaviour {
                     if(normal.z > 0)
                     {
                         directions.Add("RIGHT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                     if(normal.z < 0)
                     {
                         directions.Add("LEFT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                 }
             }
             else
             {
-                directions.Add("UP");
+                directions.Add("FORWARD");
             }
         }
         if(position.z != target.z)
@@ -223,12 +223,12 @@ public class Vehicle : MonoBehaviour {
                     if(normal.x > 0)
                     {
                         directions.Add("RIGHT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                     if(normal.x < 0)
                     {
                         directions.Add("LEFT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                 }
                 if(target.z - position.z > 0)
@@ -236,18 +236,18 @@ public class Vehicle : MonoBehaviour {
                     if(normal.x > 0)
                     {
                         directions.Add("LEFT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                     if(normal.x < 0)
                     {
                         directions.Add("RIGHT");
-                        directions.Add("UP");
+                        directions.Add("FORWARD");
                     }
                 }
             }
             else
             {
-                directions.Add("UP");
+                directions.Add("FORWARD");
             }
         }
         ///for(int t=0; t<directions.Count; t++)
@@ -262,7 +262,7 @@ public class Vehicle : MonoBehaviour {
     {
         // TODO
         Vector3 newNormal = new Vector3(0, 0, 0);
-        if(command.Equals("UP"))
+        if(command.Equals("FORWARD"))
         {
             newNormal = normal;
         }
@@ -357,7 +357,7 @@ public class Vehicle : MonoBehaviour {
 
     public int GetCurrPathLength()
     {
-        // TODO - This needs to do path length of UP, left , right queue not point queue
+        // TODO - This needs to do path length of FORWARD, left , right queue not point queue
         return currPath.Count;
     }
 
