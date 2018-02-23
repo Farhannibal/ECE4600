@@ -14,9 +14,12 @@ public class Vehicle : MonoBehaviour {
     private int currPathID;
     private Base_station station;
     private float DEFAULT_SPEED = 3.0f;
-    private bool checkingCollision = false;
     private Vector3 carNormal;
     private int cmdID = 0;
+    
+    private string export_string;
+    private List<string> stringPath;
+    private List<string> directions;
 
 
     // Use this for initialization
@@ -27,13 +30,68 @@ public class Vehicle : MonoBehaviour {
         {
             station = (Base_station)bstation.GetComponent("Base_station");
 
-
-            currPath = station.GetNewPath(name, transform.position);
-            int randPoint = Random.Range(0, currPath.Count);
-            transform.position = currPath[randPoint];
-            curr = randPoint;
+            InitCar();
+            //currPath = station.GetNewPath(name, transform.position);
+            //int randPoint = Random.Range(0, currPath.Count);
+            //transform.position = currPath[randPoint];
+            //curr = randPoint;
         }
+        stringPath = new List<string>();
+        directions = new List<string>();
 	}
+
+    private void InitCar()
+    {
+        List<Vector3> startPath = new List<Vector3>();
+        switch(name)
+        {
+            case "Pen":
+                SetCurrPathID(0);
+                startPath.Add(new Vector3(-7f, 1f, 2f));
+                startPath.Add(new Vector3(-7f, 1f, -4f));
+                startPath.Add(new Vector3(-7f, 1f, -7f));
+                startPath.Add(new Vector3(-4f, 1f, -7f));
+                startPath.Add(new Vector3(2f, 1f, -7f));
+                startPath.Add(new Vector3(2f, 1f, -4f));
+                startPath.Add(new Vector3(2f, 1f, -2f));
+                break;
+            case "Hoodie":
+                SetCurrPathID(0);
+                startPath.Add(new Vector3(-7f, 1f, -7f));
+                startPath.Add(new Vector3(-4f, 1f, -7f));
+                startPath.Add(new Vector3(2f, 1f, -7f));
+                startPath.Add(new Vector3(2f, 1f, -4f));
+                startPath.Add(new Vector3(2f, 1f, -2f));
+                break;
+            case "Pineapple":
+                SetCurrPathID(1);
+                startPath.Add(new Vector3(-5f, 1f, -3.5f));
+                startPath.Add(new Vector3(-5f, 1f, -2f));
+                startPath.Add(new Vector3(-3.5f, 1f, -2f));
+                startPath.Add(new Vector3(-2f, 1f, -2f));
+                break;
+            case "Apple":
+                SetCurrPathID(2);
+                startPath.Add(new Vector3(7f, 1f, 2.5f));
+                startPath.Add(new Vector3(7f, 1f, 7f));
+                startPath.Add(new Vector3(2.5f, 1f, 7f));
+                startPath.Add(new Vector3(-2f, 1f, 7f));
+                startPath.Add(new Vector3(-2f, 1f, 3.5f));
+                startPath.Add(new Vector3(-2f, 1f, 2f));
+                break;
+            case "bigPine":
+                SetCurrPathID(2);
+                startPath.Add(new Vector3(2.5f, 1f, 7f));
+                startPath.Add(new Vector3(-2f, 1f, 7f));
+                startPath.Add(new Vector3(-2f, 1f, 3.5f));
+                startPath.Add(new Vector3(-2f, 1f, 2f));
+                break;
+            default:
+                Debug.Log("Invalid car name in InitCar");
+                break;
+        }
+        currPath = startPath;
+    }
 
     void CheckIfInsideIntersection()
     {
@@ -65,7 +123,6 @@ public class Vehicle : MonoBehaviour {
 
     void CheckForCollisions(Vector3 targetPoint)
     {
-        checkingCollision = true;
         Vector3 fwd = transform.TransformDirection(Vector3.forward);
         Vector3 targetVector3 = targetPoint - transform.position;
         
@@ -128,8 +185,9 @@ public class Vehicle : MonoBehaviour {
             {
                 currPath = station.GetNewPath(name, transform.position);
                 curr = 0;
-                List<string> export_path = ConvertPathToStringList();
-                station.ExportCarCommands(name, ConvertListToString(export_path), cmdID++);
+                ConvertPathToStringList();
+                export_string = ConvertListToString(stringPath);
+                station.ExportCarCommands(name, export_string, cmdID++);
             }
         }
 	}
@@ -145,39 +203,30 @@ public class Vehicle : MonoBehaviour {
         return dataString;
     }
 
-    public List<string> ConvertPathToStringList()
+    public void ConvertPathToStringList()
     {
-        List<string> stringPath = new List<string>();
-        List<string> newCommands;
+        stringPath.Clear();
         Vector3 normal = new Vector3(carNormal.x, carNormal.y, carNormal.z);
         Vector3 carPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         for(int i=curr; i<currPath.Count; i++)
         {
-            newCommands = DetermineDirection(carPosition, normal, currPath[i]);
+            DetermineDirection(carPosition, normal, currPath[i]);
             carPosition = currPath[i];
-            if(newCommands.Count > 0)
+            if(directions.Count > 0)
             {
-                normal = DetermineNewNormal(normal, newCommands[0]);
-                for(int j=0; j<newCommands.Count; j++)
+                normal = DetermineNewNormal(normal, directions[0]);
+                for(int j=0; j<directions.Count; j++)
                 {
-                    stringPath.Add(newCommands[j]);
+                    stringPath.Add(directions[j]);
                 }
-                newCommands.Clear();
             }
         }
-
-        return stringPath;
     }
 
     // Called by ConvertPathToString to determine directions needed between nodes
-    private List<string> DetermineDirection(Vector3 position, Vector3 normal, Vector3 target)
+    private void DetermineDirection(Vector3 position, Vector3 normal, Vector3 target)
     {
-        //Debug.Log("Entering DetermineDirection");
-        //Debug.Log("Position: "+position);
-        //Debug.Log("Normal: "+normal);
-        //Debug.Log("Target: "+target);
-
-        List<string> directions = new List<string>();
+        directions.Clear();
         if(position.x != target.x)
         {
             if(normal.x == 0)
@@ -250,17 +299,10 @@ public class Vehicle : MonoBehaviour {
                 directions.Add("FORWARD");
             }
         }
-        ///for(int t=0; t<directions.Count; t++)
-        //{
-        //    Debug.Log(directions[t]);
-        //}
-
-        return directions;
     }
 
     private Vector3 DetermineNewNormal(Vector3 normal, string command)
     {
-        // TODO
         Vector3 newNormal = new Vector3(0, 0, 0);
         if(command.Equals("FORWARD"))
         {

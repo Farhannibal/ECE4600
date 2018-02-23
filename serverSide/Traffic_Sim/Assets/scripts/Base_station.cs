@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using System.IO;
 
@@ -12,9 +13,7 @@ public class Base_station : MonoBehaviour {
     private float DEFAULT_SPEED = 3.0f;
     private Intersection centerIntersect;
     public List<Vector3> path0, path1, path2, path3;
-    //public  GameObject waypoints = GameObject.Find("Waypoints");
-
-    // private List<Transform> listOfPoints = waypoints.getComponentsInChildren<Transform>();
+    private List<CarData> export_data;
 
 	// Use this for initialization
 	void Start () {
@@ -136,7 +135,7 @@ public class Base_station : MonoBehaviour {
         newPath = DetermineIntersectionPath(newPath, prevPath, randPath);
         int numPoints = newPath.Count;
         car.SetCurrPathID(randPath);
-        
+
         switch (randPath)
         {
             case 0:
@@ -165,7 +164,13 @@ public class Base_station : MonoBehaviour {
         dataObj.name = name;
         dataObj.commands = dataString;
         dataObj.ID = cmdID;
-        WriteCarData(dataObj);
+
+        Thread aThread = new Thread(dataObj.ThreadWriteCarData);
+        aThread.Start();
+        #if UNITY_EDITOR
+                UnityEditor.AssetDatabase.Refresh();
+        #endif
+        //WriteCarData(dataObj);
     }
 
     private List<Vector3> DetermineIntersectionPath(List<Vector3> path, int prevPathID, int newPathID)
@@ -336,6 +341,28 @@ public class Base_station : MonoBehaviour {
         public string name;
         public string commands;
         public int ID;
+
+        public void ThreadWriteCarData()
+        {
+            string dataString = JsonUtility.ToJson(this);
+            Debug.Log(dataString);
+
+            string path = null;
+            #if UNITY_EDITOR
+                path = "Assets/"+name+"Control.json";
+            #endif
+            #if UNITY_STANDALONE
+                path = "Assets/"+name+"Control.json";
+            #endif
+
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            {
+                using (StreamWriter writer = new StreamWriter(fs))
+                {
+                    writer.Write(dataString);
+                }
+            }
+        }
     }
 
     [Serializable]
