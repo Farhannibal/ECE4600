@@ -2,6 +2,7 @@ import bluetooth
 import time
 from threading import Thread
 import json
+from pathlib import Path
 
 # Library of command
 def listOfCommand(command):
@@ -9,7 +10,7 @@ def listOfCommand(command):
 		"ACK4S":0,
 		"ACK4C":1,
 		"FORWARD":2,
-		"DOWN":3,
+		"BACK":3,
 		"LEFT":4,
 		"RIGHT":5,
 		"STOP":6,
@@ -42,7 +43,7 @@ class ThreadedServer(Thread):
         self.btConnect.listen(backlog)
         while True:
             client, address = self.btConnect.accept()
-            client.settimeout(60)
+            #client.settimeout(60)
             #(client, (MACconnect, port)) = btConnect.accept()
             Thread(target = self.listenToClient, args = (client, address)).start()
 
@@ -65,6 +66,7 @@ class ThreadedServer(Thread):
 
             control = 0
             counter = 1
+            runningState = False
 
             id = 0
             compareid = 0
@@ -74,23 +76,34 @@ class ThreadedServer(Thread):
             # Second ACK the connection from client
             if listOfCommand(serverDataRecv) == 1:
                 print("Connection established for "+clientName)
+                # After establish connection, now start command client
+                # First check if the control file is existed yet
+                check = Path(fileControl);
+                while(check.is_file() == False):
+                # Wait until the command file is existed:
+                    check = Path(fileControl);
+                
+                # Now we have the control file
                 while True:
-                    # After establish connection, now start command client
-                    if len(queue) == 0 and control==0:
-                    #if control == 0:
-                        id = str(json.load(open(fileControl))["ID"])
+                    # Get command
+                    if len(queue)==0 and control==0:
+                        id = int(json.load(open(fileControl))["ID"])
                         if(compareid != id): # this mean we have new file
                             control = 1
                             counter = 1
                             queue = str(json.load(open(fileControl))["commands"]).split(',')
                             data = queue[0]
                             compareid = id
-                           
+                            runningState = True
+                                            
                     elif len(queue) > counter:
                         data = queue[counter]
-                        counter = counter + 1
-                  
-                        ## Else : Ignore the file
+                        counter = counter + 1               
+                        runningState = True
+
+                    #else: #Program in wait state
+                    else:
+                        runningState = False
 
                     #else:
                         ##Debugging purpose
@@ -98,12 +111,13 @@ class ThreadedServer(Thread):
                         #print("Available commands are UP, DOWN, LEFT, RIGHT, STOP or QUIT: ")
                         #data = input()
 
-                    if listOfCommand(data) != 99:
+                    if listOfCommand(data) != 99 and runningState:
                     # If data is valid then start sending                        
 
                         if counter == len(queue): # Stop when the queue is cleared
                             control = 0
                             queue=[]
+                            runningState = False
                         else:
                         #Also timing the connection time
                             start = time.time()
@@ -127,8 +141,8 @@ class ThreadedServer(Thread):
 
 if __name__ == "__main__":
     # Multithreaded Python server: Bluetooth server
-    #hostMACAddress = '5C:F3:70:76:B6:5E' # Huy Bluetooth
-    hostMACAddress = '60:6C:66:B5:63:D1' # Aleksa Bluetooth
+    hostMACAddress = '00:1A:7D:DA:71:13' # Huy Bluetooth
+    #hostMACAddress = '60:6C:66:B5:63:D1' # Aleksa Bluetooth
     btPort = 3  # default for pyBluez bluetooth
 
     newthread = ThreadedServer(hostMACAddress, btPort)
