@@ -12,11 +12,14 @@ def listOfCommand(command):
         "ACK4S": 0,
         "ACK4C": 1,
         "FORWARD": 2,
-        "DOWN": 3,
+        "BACK": 3,
         "LEFT": 4,
         "RIGHT": 5,
         "STOP": 6,
         "UPDATE": 7,
+        "START": 8,
+        "LEFTBACK": 9,
+        "RIGHTBACK": 10,
         "QUIT": 98
     }.get(command, 99)  # default will be WAIT
 
@@ -46,11 +49,13 @@ def messageHandler(connection, message, robot):
             # Going back
             elif listOfCommand(message) == 3:
                 print("Go back")
+                robot.command('bck1')
                 dataSendBack = "ACK4C"
             
             # Turn left
             elif listOfCommand(message) == 4:
                 print("Turn left")
+                robot.command('fwdLTurn')
                 dataSendBack = "ACK4C"
 
             # Turn right
@@ -62,12 +67,30 @@ def messageHandler(connection, message, robot):
             # STOP
             elif listOfCommand(message) == 6:
                 print("Stop the car!")
+                robot.command('stop')
                 dataSendBack = "ACK4C"
 
             # UPDATE
-
             elif listOfCommand(message) == 7:
-                dataSendBack = robot.status
+                dataSendBack = robot.status()
+
+            # START
+            elif listOfCommand(message) == 8:
+                print("Start the car!")
+                robot.command('start')
+                dataSendBack = "ACK4C"
+
+            # Turn left backwards
+            elif listOfCommand(message) == 9:
+                print("Turn left")
+                robot.command('bckLTurn')
+                dataSendBack = "ACK4C"
+
+            # Turn right backwards
+            elif listOfCommand(message) == 10:
+                print("Turn right")
+                robot.command('bckRTurn')
+                dataSendBack = "ACK4C"
 
             # Send back when the car finish they go:
             

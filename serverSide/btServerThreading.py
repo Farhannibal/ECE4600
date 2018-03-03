@@ -15,8 +15,9 @@ def listOfCommand(command):
 		"RIGHT":5,
 		"STOP":6,
         "UPDATE":7,
-		"QUIT":98
-	}.get(command, 99) # default will be WAIT
+		"QUIT":98,
+        "WAIT":99
+	}.get(command, 100) # default will be ERROR
 
 def namesOfCars(MACAddress):
     return{
@@ -65,11 +66,12 @@ class ThreadedServer(Thread):
             fileStatus = "Traffic_Sim/Assets/"+ clientName + "Status.json"
 
             control = 0
-            counter = 1
+            counter = 0
             runningState = False
+            data = "WAIT"
 
-            id = 0
-            compareid = 0
+            id = -1
+            compareid = -1
 
             queue = []
 
@@ -84,58 +86,50 @@ class ThreadedServer(Thread):
                     check = Path(fileControl);
                 
                 # Now we have the control file
+                print("Detected commands for " +clientName)
                 while True:
                     # Get command
                     if len(queue)==0 and control==0:
                         id = int(json.load(open(fileControl))["ID"])
                         if(compareid != id): # this mean we have new file
                             control = 1
-                            counter = 1
+                            counter = 0
                             queue = str(json.load(open(fileControl))["commands"]).split(',')
-                            data = queue[0]
                             compareid = id
-                            runningState = True
-                                            
-                    elif len(queue) > counter:
-                        data = queue[counter]
-                        counter = counter + 1               
-                        runningState = True
+                            start = time.time()
+                            data = queue[0];
 
-                    #else: #Program in wait state
-                    else:
-                        runningState = False
-
-                    #else:
-                        ##Debugging purpose
-                        #print("Please enter command for "+clientName+": ")
-                        #print("Available commands are UP, DOWN, LEFT, RIGHT, STOP or QUIT: ")
-                        #data = input()
-
-                    if listOfCommand(data) != 99 and runningState:
-                    # If data is valid then start sending                        
-
+                    elif len(queue) > 0 and control ==1:
+                        counter = counter + 1
                         if counter == len(queue): # Stop when the queue is cleared
                             control = 0
                             queue=[]
-                            runningState = False
+                            data="WAIT"
                         else:
+                            data = queue[counter]
+                        
+                    #else: #Program in wait state
+                    else:
+                        data = "WAIT"
+
+                    if listOfCommand(data) != 99 :
+                    # If data is valid then start sending                        
                         #Also timing the connection time
-                            start = time.time()
-                            client.send(data)
-                    
-                            # Waiting for update on position
-                            serverDataRecv = client.recv(dataSize).decode("utf-8")
-                            end = time.time()
-
-                            print("Time needed for communicate = " + str(end-start))
-
-                            if listOfCommand(data) == 7:
+                        client.send(data)
+                        # Waiting for update on position
+                        serverDataRecv = client.recv(dataSize).decode("utf-8")
+                        if listOfCommand(data) == 7:
+                                end = time.time()
+                                print("Time needed for communicate = " + str(end-start))
                                 print(serverDataRecv)
                                 with open(fileStatus, 'w') as outfile:
                                     outfile.write(serverDataRecv)
                             # Quit when user type quit in command line
-                            if listOfCommand(data) == 98:
+                        elif listOfCommand(data) == 98:
                                 break
+                        else:
+                            print("Client " + clientName+ " acknowledged the signal")
+
                 client.close()
         return False
 
