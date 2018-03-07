@@ -1,15 +1,15 @@
 {
     "values": [
         {
+            "speed": 100,
+            "gear": 3,
             "actionQueue": [
                 "forwardStart",
                 "forwardUntilNode",
                 "forwardUntil",
                 "forwardEnd"
             ],
-            "gear": 3,
-            "currentAction": "empty",
-            "speed": 100
+            "currentAction": "empty"
         }
     ]
 }

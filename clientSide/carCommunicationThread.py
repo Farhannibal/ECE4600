@@ -40,8 +40,12 @@ def messageHandler(connection, message, robot):
             # Else follow the command
             # Any command for the car will be modified here
 
+            # For DEBUGGING-PING purpose:
+            if listOfCommand(message) == 0:
+                dataSendBack = "ACK4C"
+
             # Going forward
-            if listOfCommand(message) == 2:
+            elif listOfCommand(message) == 2:
                 print("Go forward")
                 robot.command('fwd1')
                 dataSendBack = "ACK4C"

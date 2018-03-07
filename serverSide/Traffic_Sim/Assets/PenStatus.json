@@ -1,9 +1,9 @@
 {
     "values": [
         {
-            "speed": 100,
             "currentAction": "",
             "gear": 3,
+            "speed": 100,
             "actionQueue": [
                 "forwardUntilNode",
                 "forwardUntil",

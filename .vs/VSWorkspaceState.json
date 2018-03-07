@@ -2,11 +2,8 @@
   "ExpandedNodes": [
     "",
     "\\clientSide",
-    "\\serverSide",
-    "\\serverSide\\Traffic_Sim",
-    "\\serverSide\\Traffic_Sim\\Assets",
-    "\\serverSide\\Traffic_Sim\\Assets\\scripts"
+    "\\serverSide"
   ],
-  "SelectedNode": "\\serverSide\\btServerThreading.py",
+  "SelectedNode": "\\serverSide\\pingClient.py",
   "PreviewInSolutionExplorer": false
 }
