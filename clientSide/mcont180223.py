@@ -862,7 +862,7 @@ if __name__ == '__main__':
     carCommunication = communication.communication_thread(SERVER_MAC_ADDRESS,robot)
     carCommunication.start()
 
-    # robot.command('fwd1')
+    #robot.command('fwd1')
     #robot.command('fwdRTurn')
 
     # robot.command('terminate')
